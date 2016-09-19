@@ -66,7 +66,7 @@ var igv = (function (igv) {
             center,
             xBP;
 
-        ppb = 1.0/igv.browser.referenceFrame.bpPerPixel;
+        ppb = (igv.browser.referenceFrame !== undefined) ? 1.0/igv.browser.referenceFrame.bpPerPixel : 0;
         if (ppb > 1) {
 
             trackViewXY = $(igv.browser.trackViews[ 0 ].viewportDiv).position();

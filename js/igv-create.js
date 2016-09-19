@@ -219,11 +219,12 @@ var igv = (function (igv) {
                         start = refFrame.start,
                         end = start + browser.trackViewportWidth() * refFrame.bpPerPixel,
                         range = start - end;
-
+                    var sortBy = [refFrame.chr, start, end, "DESC"];
                     if (config.tracks) {
-
+                        config.tracks.forEach(function(track){
+                            if(track.type === "seg")track.sortBy = sortBy;
+                        });
                         browser.loadTracksWithConfigList(config.tracks);
-
 
                     }
 
@@ -276,13 +277,13 @@ var igv = (function (igv) {
 
             browser.$searchInput.change(function () {
 
-                browser.search($(this).val());
+                browser.search($(this).val(), null, null, config);
             });
 
             $faZoom = $('<i class="igv-app-icon fa fa-search fa-18px shim-left-6">');
 
             $faZoom.click(function () {
-                browser.search(browser.$searchInput.val());
+                browser.search(browser.$searchInput.val(), null, null, config);
             });
 
             $searchContainer.append(browser.$searchInput[0]);

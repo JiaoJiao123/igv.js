@@ -370,6 +370,7 @@ var igv = (function (igv) {
             refFrameEnd,
             success;
 
+
         if (!(viewIsReady.call(this))) {
             return;
         }
@@ -407,11 +408,8 @@ var igv = (function (igv) {
             self.loading = {start: bpStart, end: bpEnd};
 
             igv.startSpinnerAtParentElement(self.trackDiv);
-
             this.track.getFeatures(referenceFrame.chr, bpStart, bpEnd)
-
                 .then(function (features) {
-
                     self.loading = false;
                     igv.stopSpinnerAtParentElement(self.trackDiv);
 
@@ -455,6 +453,14 @@ var igv = (function (igv) {
 
                         self.tile = new Tile(referenceFrame.chr, bpStart, bpEnd, referenceFrame.bpPerPixel, buffer);
                         self.paintImage();
+                        //sort segment viewer
+                        if(self.track.name === "Genes"){
+                            var segTracks = igv.browser.findTracks("type", "seg");
+                            segTracks.forEach(function (track) {
+                                track.sortSamples(track.config.sortBy[0], track.config.sortBy[1], track.config.sortBy[2], track.config.sortBy[3]);
+                            })
+                        }
+
                     }
                     else {
                         self.ctx.clearRect(0, 0, self.canvas.width, self.canvas.height);
