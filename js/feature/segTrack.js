@@ -298,7 +298,6 @@ var igv = (function (igv) {
                 else return d2 * -1;
 
             });
-
             // Finally update sample hash
             for (i = 0; i < sampleNames.length; i++) {
                 self.samples[sampleNames[i]] = i;
@@ -307,8 +306,6 @@ var igv = (function (igv) {
 
             self.trackView.update();
             $(self.trackView.viewportDiv).scrollTop(0);
-
-
         }).catch(function(error) {
             console.log(error);
         });

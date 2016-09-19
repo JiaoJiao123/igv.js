@@ -176,7 +176,13 @@ var igvxhr = (function (igvxhr) {
 
         var method = options.method || (options.sendData ? "POST" : "GET");
 
-        if (method == "POST") options.contentType = "application/json";
+        if (method === "POST"){
+            if(options.json){
+                options.contentType = "application/x-www-form-urlencoded";
+            }else{
+                options.contentType = "application/json";
+            }
+        }
 
         return new Promise(function (fulfill, reject) {
 

@@ -217,7 +217,13 @@ var igv = (function (igv) {
                         ss = browser.referenceFrame.start;
                         ee = ss + browser.trackViewportWidth() * browser.referenceFrame.bpPerPixel;
                         range = ss - ee;
-                        browser.loadTracksWithConfigList(config.tracks);
+                        var sortBy = [browser.referenceFrame.chr, ss, ee, "DESC"];
+                        if (config.tracks) {
+                            config.tracks.forEach(function(track){
+                                if(track.type === "seg")track.sortBy = sortBy;
+                            });
+                            browser.loadTracksWithConfigList(config.tracks);
+                        }
                     }, true);
 
                 } else {
@@ -262,13 +268,13 @@ var igv = (function (igv) {
 
             browser.$searchInput.change(function () {
 
-                browser.search($(this).val());
+                browser.search($(this).val(), null, null, config);
             });
 
             $faSearch = $('<i class="igv-fa-search fa fa-search fa-18px shim-left-6">');
 
             $faSearch.click(function () {
-                browser.search(browser.$searchInput.val());
+                browser.search(browser.$searchInput.val(), null, null, config);
             });
 
             $searchContainer.append(browser.$searchInput);

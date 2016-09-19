@@ -674,7 +674,7 @@ var igv = (function (igv) {
      * @param feature
      * @param callback - function to call
      */
-    igv.Browser.prototype.search = function (feature, callback, force) {
+    igv.Browser.prototype.search = function (feature, callback, force, config) {
         var type,
             chr,
             start,
@@ -691,10 +691,32 @@ var igv = (function (igv) {
             }
             return;
         }
+        var previousChr = "0";
+        var options = jQuery.extend(true, {}, config);
+        if(config !== undefined){
+            options.tracks = [];
+            config.tracks.forEach(function(track){
+                if(track.type === "seg"){
+                    previousChr = track.chromosome;
+                    options.tracks.push(track);
+                }else if(track.name === "Genes"){
+                    options.tracks.push(track);
+                }
+            });
+            options.locus = feature;
+
+        }
 
         if (isLocusFeature(feature, this.genome, force)) {
-
-            var success = gotoLocusFeature(feature, this.genome, this);
+            var chr = feature.substring(3, feature.indexOf(":")).trim(), success = true;
+            if(config !== undefined && chr !== previousChr){
+                options.tracks.forEach(function(track){
+                    if(track.type === "seg")track.chromosome = chr;
+                });
+                igv.createBrowser($("#"+config.divId), options);
+            }else{
+                success =  gotoLocusFeature(feature, this.genome, this);
+            }
 
             if ((force || true === success) && callback) {
                 callback();
@@ -722,7 +744,6 @@ var igv = (function (igv) {
                 // loader.loadBinaryString(callback);
 
                 igvxhr.loadString(url).then(function (data) {
-
                     var results = ("plain" === searchConfig.type) ? parseSearchResults(data) : JSON.parse(data);
 
                     if (searchConfig.resultsField) {
@@ -733,17 +754,31 @@ var igv = (function (igv) {
                         //alert('No feature found with name "' + feature + '"');
                         igv.presentAlert('No feature found with name "' + feature + '"');
                     }
-                    else {
+                    else{
+                    //else if (results.length == 1) {
 
                         // Just take the first result for now
                         // TODO - merge results, or ask user to choose
-
-                        r = results[0];
+                        for(var i = 0;i < results.length;i++){
+                            if(results[i].chromosome.length < 6){
+                                r = results[i];
+                                break;
+                            }
+                        }
                         chr = r[searchConfig.chromosomeField];
                         start = r[searchConfig.startField] - searchConfig.coords;
                         end = r[searchConfig.endField];
                         type = r["featureType"] || r["type"];
-                        handleSearchResult(feature, chr, start, end, type);
+                        var tempChr = chr.substring(3).trim();
+                        if(config !== undefined && tempChr !== previousChr){
+                            options.tracks.forEach(function(track){
+                                if(track.type === "seg")track.chromosome = tempChr;
+                            });
+                            igv.createBrowser($("#"+config.divId), options);
+                        }else{
+                            handleSearchResult(feature, chr, start, end, type);
+                        }
+
                     }
                     //else {
                     //    presentSearchResults(results, searchConfig, feature);
