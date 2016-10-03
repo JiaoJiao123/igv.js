@@ -122,18 +122,7 @@ var igv = (function (igv) {
             }
             else if(self.config.json){
                 //this is customized for cBioPortal use case
-                $.when($.ajax({
-                    method : self.config.method,
-                    url : self.config.url,
-                    data : {
-                        cancerStudyId: self.config.cancerStudyId,
-                        chromosomes: self.config.chromosomes,
-                        sampleIds: self.config.sampleIds
-                    }
-                })).then(
-                    function(response) {
-                        parseData(response);
-                    });
+                igvxhr.loadFromAPI(self.config).then(parseData).catch(reject);
             }
             else {
                 igvxhr.loadString(self.url, options).then(parseData).catch(reject);

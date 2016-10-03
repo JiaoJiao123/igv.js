@@ -154,7 +154,24 @@ var igvxhr = (function (igvxhr) {
             }
         });
     }
-
+    igvxhr.loadFromAPI = function(config){
+        return new Promise(function(fulfill, reject){
+            $.when($.ajax({
+                method : config.method,
+                url : config.url,
+                data : {
+                    cancerStudyId: config.cancerStudyId,
+                    chromosomes: config.chromosomes,
+                    sampleIds: config.sampleIds
+                }
+            })).then(
+                function(response) {
+                    if(response)
+                        fulfill(response);
+                    else reject(response);
+                });
+        });
+    };
     igvxhr.loadArrayBuffer = function (url, options) {
 
         if (options === undefined) options = {};
