@@ -159,11 +159,7 @@ var igvxhr = (function (igvxhr) {
             $.when($.ajax({
                 method : config.method,
                 url : config.url,
-                data : {
-                    cancerStudyId: config.cancerStudyId,
-                    chromosomes: config.chromosomes,
-                    sampleIds: config.sampleIds
-                }
+                data : config.parameters
             })).then(
                 function(response) {
                     if(response)
