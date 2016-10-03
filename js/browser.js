@@ -248,14 +248,6 @@ var igv = (function (igv) {
         this.reorderTracks();
 
         trackView.resize();
-        //if(track.name === "Genes"){
-        //    var segTracks = igv.browser.findTracks("type", "seg");
-        //    segTracks.forEach(function (track) {
-        //        track.sortSamples(config.sortBy[0], config.sortBy[1], config.sortBy[2], config.sortBy[3]);
-        //    })
-        //
-        //    console.log("sorting segment track");
-        //}
     };
 
     igv.Browser.prototype.reorderTracks = function () {
