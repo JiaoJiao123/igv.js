@@ -122,7 +122,7 @@ var igv = (function (igv) {
             }
             else if(self.config.json){
                 //this is customized for cBioPortal use case
-                igvxhr.loadFromAPI(self.config).then(parseData).catch(reject);
+                igvxhr.loadJson(self.config.url, self.config).then(parseData).catch(reject);
             }
             else {
                 igvxhr.loadString(self.url, options).then(parseData).catch(reject);

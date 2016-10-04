@@ -154,20 +154,7 @@ var igvxhr = (function (igvxhr) {
             }
         });
     }
-    igvxhr.loadFromAPI = function(config){
-        return new Promise(function(fulfill, reject){
-            $.when($.ajax({
-                method : config.method,
-                url : config.url,
-                data : config.parameters
-            })).then(
-                function(response) {
-                    if(response)
-                        fulfill(response);
-                    else reject(response);
-                });
-        });
-    };
+
     igvxhr.loadArrayBuffer = function (url, options) {
 
         if (options === undefined) options = {};
@@ -179,7 +166,13 @@ var igvxhr = (function (igvxhr) {
 
         var method = options.method || (options.sendData ? "POST" : "GET");
 
-        if (method == "POST") options.contentType = "application/json";
+        if (method === "POST"){
+            if(options.json){
+                options.contentType = "application/x-www-form-urlencoded";
+            }else{
+                options.contentType = "application/json";
+            }
+        }
 
         return new Promise(function (fulfill, reject) {
 
