@@ -47,6 +47,8 @@ var igv = (function (igv) {
             igv.removeBrowser();
         }
 
+        config.locus=config.locus.toLowerCase();
+
         setDefaults(config);
 
         setOAuth(config);
