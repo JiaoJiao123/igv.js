@@ -47,6 +47,8 @@ var igv = (function (igv) {
             igv.removeBrowser();
         }
 
+        config.locus=config.locus.toLowerCase();
+
         setDefaults(config);
 
         setOAuth(config);
@@ -326,7 +328,7 @@ var igv = (function (igv) {
             browser.$searchInput = $('<input type="text" placeholder="Locus Search">');
 
             browser.$searchInput.change(function (e) {
-                browser.parseSearchInput( $(e.target).val() );
+                browser.parseSearchInput( $(e.target).val().toLowerCase() );
             });
 
             $faSearch = $('<i class="fa fa-search">');
@@ -516,10 +518,3 @@ var igv = (function (igv) {
     return igv;
 })
 (igv || {});
-
-
-
-
-
-
-
