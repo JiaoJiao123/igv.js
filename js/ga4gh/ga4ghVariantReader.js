@@ -33,7 +33,8 @@ var igv = (function (igv) {
         this.variantSetId = config.variantSetId;
         this.callSetIds = config.callSetIds;
         this.includeCalls = (config.includeCalls === undefined ? true : config.includeCalls);
-
+        this.wgData = config.wgData;
+        this.supportsWholeGenome = true;
     }
 
     // Simulate a VCF file header
@@ -54,7 +55,8 @@ var igv = (function (igv) {
 
                 if (self.includeCalls === false) {
                     fulfill(self.header);
-                }
+               }
+
                 else {
 
                     var readURL = self.url + "/callsets/search";
@@ -89,6 +91,7 @@ var igv = (function (igv) {
                         fulfill(self.header);
                     }).catch(reject);
                 }
+
             }
 
         });
@@ -99,7 +102,6 @@ var igv = (function (igv) {
     igv.Ga4ghVariantReader.prototype.readFeatures = function (chr, bpStart, bpEnd) {
 
         var self = this;
-
         return new Promise(function (fulfill, reject) {
 
             self.readHeader().then(function (header) {
@@ -108,7 +110,7 @@ var igv = (function (igv) {
 
                     var queryChr = chrNameMap.hasOwnProperty(chr) ? chrNameMap[chr] : chr,
                         readURL = self.url + "/variants/search";
-
+ /*
                     igv.ga4ghSearch({
                         url: readURL,
                         fields: (self.includeCalls ? undefined : "nextPageToken,variants(id,variantSetId,names,referenceName,start,end,referenceBases,alternateBases,quality, filter, info)"),
@@ -129,7 +131,37 @@ var igv = (function (igv) {
 
                             return variants;
                         }
+                     }).then(fulfill).catch(reject);
+
+
+
+*/
+                    var wholeGenomePromise = new Promise(function (fulfill, reject) {
+                        var results =[],
+                            tmp;
+                     //call of json left to do
+                        function decode (json) {
+                            var variants=[];
+                            json.forEach(function (json) {
+                                variants.push(igv.createGAVariant(json));
+                            })
+                        };
+
+                        if (this.wgData) {
+
+                            tmp = decode ? decode(this.wgData) : this.wgData;
+                            if (tmp) {
+                                tmp.forEach(function (a) {
+                                    var keep = true;
+                                    if (keep) {
+                                        results.push(a);
+                                    }
+                                });
+                            }
+                        }
+                        fulfill(results);
                     }).then(fulfill).catch(reject);
+
                 }).catch(reject);  // chr name map
             }).catch(reject);  // callsets
         });

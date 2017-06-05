@@ -78,6 +78,7 @@ var igv = (function (igv) {
             bpPerPixel;
 
         if (options.referenceFrame.chrName === "all") {
+            this.bpPerPixel = options.referenceFrame.bpPerPixel;
             drawAll.call(this);
         } else {
             updateLocusLabelWithGenomicState(options.genomicState);
@@ -194,7 +195,8 @@ var igv = (function (igv) {
             var self = this,
                 lastX = 0,
                 yShim = 2,
-                tickHeight = 10;
+                tickHeight = 10,
+                bpPerPixel = options.referenceFrame.bpPerPixel;
 
             _.each(igv.browser.genome.wgChromosomeNames, function (chrName) {
 

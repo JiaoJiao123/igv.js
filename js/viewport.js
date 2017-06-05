@@ -71,10 +71,10 @@ var igv = (function (igv) {
         }
 
         // zoom in to see features
-        if (trackView.track.visibilityWindow !== undefined || !trackView.track.supportsWholeGenome) {
-            self.$zoomInNotice = createZoomInNotice();
-            $(this.contentDiv).append(self.$zoomInNotice);
-        }
+  //      if (trackView.track.visibilityWindow !== undefined || !trackView.track.supportsWholeGenome) {
+  //          self.$zoomInNotice = createZoomInNotice();
+  //          $(this.contentDiv).append(self.$zoomInNotice);
+  //      }
 
         function createZoomInNotice () {
             var $container,
@@ -234,7 +234,7 @@ var igv = (function (igv) {
                         newCenter = Math.round(referenceFrame.start + canvasCoords.x * referenceFrame.bpPerPixel);
                         if(referenceFrame.chrName === "all") {
                             chr = igv.browser.genome.getChromosomeCoordinate(newCenter).chr;
-                            igv.browser.search(chr);
+                            igv.browser.parseSearchInput(chr);
 
                         } else {
                             self.genomicState.referenceFrame.bpPerPixel /= 2;
@@ -295,13 +295,48 @@ var igv = (function (igv) {
             left,
             rulerSweepWidth,
             rulerSweepThreshold = 1,
-            dx;
+            dx,
+            cnv = this.canvas;
 
         this.removeRulerMouseHandlers();
 
-        if ('all' === this.genomicState.chromosome.name) {
-            return;
-        }
+        $(self.canvas).on('click.rulerZoom',(function handler(e) {
+
+            var chromosomeArray = [249250621,243199373,198022430,191154276,180915260,171115067,159138663,146364022,141213431,135534747,135006516,133851895,115169878,107349540,102531392,90354753,81195210,78077248,59128983,63025520,48129895,51304566,155270560,59373566],
+                totalBP = _.reduce(chromosomeArray, function(memo, num){ return memo + num; }, 0),
+                chrLen = chromosomeArray.length,
+                arrX=[0];
+
+            e.preventDefault();
+            e = $.event.fix(e);
+            e.stopPropagation();
+
+            coords = igv.translateMouseCoordinates(e, self.canvas);
+
+            arrX.push(Math.floor(cnv.width/totalBP*chromosomeArray[0]));
+            for (var i=1; i<chrLen+1 ; i++) {
+                arrX.push(Math.floor(cnv.width/totalBP*chromosomeArray[i]));
+                arrX[i] = arrX[i-1] + arrX[i];
+            }
+
+            var chromosomeNumber = 0;
+            for (i=0 ;i<chrLen; i++) {
+                if (coords.x > arrX[i] && coords.x < arrX[i+1]) {
+                    chromosomeNumber = i + 1;
+                    break;
+                }
+            }
+
+            var search =  (chromosomeNumber === 0 ? 'all' : chromosomeNumber <= 22 ? 'chr' + (chromosomeNumber).toString() : chromosomeNumber === 23 ? 'chrX' : 'chrY');
+            igv.browser.parseSearchInput( search );
+
+          }));
+
+          if ('all' === self.genomicState.chromosome.name) {
+            return ;
+          }
+
+          $(this.canvas).off('click.rulerZoom'); // If not 'all' then remove the above click handler
         // self.trackView.trackDiv.dataset.rulerTrack = "rulerTrack";
 
         // ruler sweeper widget surface
@@ -459,20 +494,19 @@ var igv = (function (igv) {
             return;
         }
 
-        if (this.$zoomInNotice && this.trackView.track.visibilityWindow !== undefined && this.trackView.track.visibilityWindow > 0) {
+    /*    if (this.$zoomInNotice && this.trackView.track.visibilityWindow !== undefined && this.trackView.track.visibilityWindow > 0) {
             if ((referenceFrame.bpPerPixel * this.$viewport.width() > this.trackView.track.visibilityWindow) ||
                 (referenceFrame.chrName === "all" && !this.trackView.track.supportsWholeGenome)) {
                 this.tile = null;
-                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
+                //this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
                 self.stopSpinner();
-
+                console.log('bhenchod');
                 this.$zoomInNotice.show();
                 return;
             } else {
                 this.$zoomInNotice.hide();
             }
-        }
+        }   */
 
         chr = referenceFrame.chrName;
         refFrameStart = referenceFrame.start;

@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="shortcut icon" href="//igv.org/web/img/favicon.ico">
+
+    <title>IGV.js Example - GA4GH</title>
+
+    <link rel="stylesheet" type="text/css" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/themes/smoothness/jquery-ui.css"/>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css">
+    <!-- IGV CSS -->
+    <link rel="stylesheet" type="text/css" href="https://igv.org/web/beta/igv.css">
+
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.2/jquery-ui.min.js"></script>
+
+    <!-- Underscore JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore-min.js"></script>
+
+    <script type="text/javascript" src="../dist/igv.js"></script>
+    <script>
+        (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+                    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+                m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+        ga('create', 'UA-92237317-1', 'auto');
+        ga('send', 'pageview');
+
+    </script>
+
+</head>
+
+<body>
+
+<p>
+
+<h1>Embedded GA4GH browser</h1>
+</p>
+
+<div id="igvDiv" style="padding-top: 10px;padding-bottom: 10px; border:1px solid lightgray"></div>
+
+<script type="text/javascript">
+
+    $(document).ready(function () {
+
+        var div = $("#igvDiv")[0],
+        data = [
+            {
+                "hugoGeneSymbol": "TP53",
+                "referenceName": "17",
+                "start": 7577120,
+                "end": 7577120,
+                "referenceBases": "C",
+                "proteinChange": "R273H",
+                "alternateBases": "T"
+            },
+            {
+                "hugoGeneSymbol": "JAKMIP2",
+                "referenceName": "5",
+                "start": 147040528,
+                "end": 147040528,
+                "referenceBases": "G",
+                "proteinChange": "R204W",
+                "alternateBases": "A"
+            },
+            {
+                "hugoGeneSymbol": "SEC63",
+                "referenceName": "6",
+                "start": 108214774,
+                "end": 108214774,
+                "referenceBases": "T",
+                "proteinChange": "K529Rfs*4",
+                "alternateBases": "-"
+            },
+            {
+                "hugoGeneSymbol": "SLC8A1",
+                "referenceName": "2",
+                "start": 40656621,
+                "end": 40656621,
+                "referenceBases": "C",
+                "proteinChange": "R267L",
+                "alternateBases": "A"
+            },
+            {
+                "hugoGeneSymbol": "KLHL29",
+                "referenceName": "2",
+                "start": 23926096,
+                "end": 23926097,
+                "referenceBases": "-",
+                "proteinChange": "P717Afs*51",
+                "alternateBases": "T"
+            },
+            {
+                "hugoGeneSymbol": "FAM47B",
+                "referenceName": "X",
+                "start": 34962068,
+                "end": 34962068,
+                "referenceBases": "C",
+                "proteinChange": "L374I",
+                "alternateBases": "A"
+            },
+            {
+                "hugoGeneSymbol": "NHS",
+                "referenceName": "X",
+                "start": 17743957,
+                "end": 17743957,
+                "referenceBases": "T",
+                "proteinChange": "S556R",
+                "alternateBases": "G"
+            },
+            {
+                "hugoGeneSymbol": "NXF3",
+                "referenceName": "X",
+                "start": 102338570,
+                "end": 102338570,
+                "referenceBases": "C",
+                "proteinChange": "Q134H",
+                "alternateBases": "G"
+            },
+            {
+                "hugoGeneSymbol": "TAF1",
+                "referenceName": "X",
+                "start": 70679490,
+                "end": 70679490,
+                "referenceBases": "T",
+                "proteinChange": "L1738R",
+                "alternateBases": "G"
+            },
+            {
+                "hugoGeneSymbol": "ADAM30",
+                "referenceName": "1",
+                "start": 120437576,
+                "end": 120437576,
+                "referenceBases": "T",
+                "proteinChange": "N462D",
+                "alternateBases": "C"
+            },
+            {
+                "hugoGeneSymbol": "AHCYL1",
+                "referenceName": "1",
+                "start": 110560608,
+                "end": 110560608,
+                "referenceBases": "C",
+                "proteinChange": "R365W",
+                "alternateBases": "T"
+            },
+            {
+                "hugoGeneSymbol": "C1ORF95",
+                "referenceName": "1",
+                "start": 226736749,
+                "end": 226736749,
+                "referenceBases": "C",
+                "proteinChange": "Y48*",
+                "alternateBases": "G"
+            },
+            {
+                "hugoGeneSymbol": "CADM3",
+                "referenceName": "1",
+                "start": 159169647,
+                "end": 159169647,
+                "referenceBases": "C",
+                "proteinChange": "H387Q",
+                "alternateBases": "A"
+            },
+            {
+                "hugoGeneSymbol": "CLCA4",
+                "referenceName": "1",
+                "start": 87036838,
+                "end": 87036838,
+                "referenceBases": "T",
+                "proteinChange": "S421T",
+                "alternateBases": "A"
+            },
+            {
+                "hugoGeneSymbol": "HMCN1",
+                "referenceName": "1",
+                "start": 186076037,
+                "end": 186076037,
+                "referenceBases": "A",
+                "proteinChange": "T3598S",
+                "alternateBases": "T"
+            },
+            {
+                "hugoGeneSymbol": "KIAA1614",
+                "referenceName": "1",
+                "start": 180886093,
+                "end": 180886093,
+                "referenceBases": "G",
+                "proteinChange": "G285V",
+                "alternateBases": "T"
+            },
+            {
+                "hugoGeneSymbol": "NOTCH2",
+                "referenceName": "1",
+                "start": 120493457,
+                "end": 120493457,
+                "referenceBases": "T",
+                "proteinChange": "Y790C",
+                "alternateBases": "C"
+            },
+            {
+                "hugoGeneSymbol": "PKP1",
+                "referenceName": "1",
+                "start": 201291239,
+                "end": 201291239,
+                "referenceBases": "G",
+                "proteinChange": "S515N",
+                "alternateBases": "A"
+            },
+            {
+                "hugoGeneSymbol": "THBS3",
+                "referenceName": "1",
+                "start": 155174662,
+                "end": 155174662,
+                "referenceBases": "C",
+                "proteinChange": "E210D",
+                "alternateBases": "G"
+            },
+            {
+                "hugoGeneSymbol": "ITGA4",
+                "referenceName": "2",
+                "start": 182386920,
+                "end": 182386920,
+                "referenceBases": "C",
+                "proteinChange": "P642H",
+                "alternateBases": "A"
+            },
+            {
+                "hugoGeneSymbol": "SPRED2",
+                "referenceName": "2",
+                "start": 65559174,
+                "end": 65559174,
+                "referenceBases": "A",
+                "proteinChange": "S129P",
+                "alternateBases": "G"
+            },
+            {
+                "hugoGeneSymbol": "TMEM177",
+                "referenceName": "2",
+                "start": 120439259,
+                "end": 120439259,
+                "referenceBases": "A",
+                "proteinChange": "N277T",
+                "alternateBases": "C"
+            },
+            {
+                "hugoGeneSymbol": "CIDEC",
+                "referenceName": "3",
+                "start": 9911605,
+                "end": 9911605,
+                "referenceBases": "G",
+                "proteinChange": "S182C",
+                "alternateBases": "C"
+            },
+            {
+                "hugoGeneSymbol": "EIF4A2",
+                "referenceName": "3",
+                "start": 186505322,
+                "end": 186505322,
+                "referenceBases": "G",
+                "proteinChange": "M316I",
+                "alternateBases": "C"
+            },
+            {
+                "hugoGeneSymbol": "HRG",
+                "referenceName": "3",
+                "start": 186389431,
+                "end": 186389431,
+                "referenceBases": "T",
+                "proteinChange": "N137K",
+                "alternateBases": "G"
+            },
+            {
+                "hugoGeneSymbol": "HRH1",
+                "referenceName": "3",
+                "start": 11300790,
+                "end": 11300790,
+                "referenceBases": "G",
+                "proteinChange": "A23S",
+                "alternateBases": "T"
+            },
+            {
+                "hugoGeneSymbol": "IQCF1",
+                "referenceName": "3",
+                "start": 51929103,
+                "end": 51929103,
+                "referenceBases": "G",
+                "proteinChange": "R141C",
+                "alternateBases": "A"
+            },
+            {
+                "hugoGeneSymbol": "MAP4",
+                "referenceName": "3",
+                "start": 48040304,
+                "end": 48040304,
+                "referenceBases": "T",
+                "proteinChange": "D16V",
+                "alternateBases": "A"
+            },
+            {
+                "hugoGeneSymbol": "TNIK",
+                "referenceName": "3",
+                "start": 170946006,
+                "end": 170946006,
+                "referenceBases": "C",
+                "proteinChange": "R43P",
+                "alternateBases": "G"
+            },
+            {
+                "hugoGeneSymbol": "ZNF654",
+                "referenceName": "3",
+                "start": 88190160,
+                "end": 88190160,
+                "referenceBases": "A",
+                "proteinChange": "K567T",
+                "alternateBases": "C"
+            },
+            {
+                "hugoGeneSymbol": "ANKRD17",
+                "referenceName": "4",
+                "start": 73956580,
+                "end": 73956580,
+                "referenceBases": "G",
+                "proteinChange": "S2255R",
+                "alternateBases": "C"
+            },
+            {
+                "hugoGeneSymbol": "CNGA1",
+                "referenceName": "4",
+                "start": 47945300,
+                "end": 47945300,
+                "referenceBases": "G",
+                "proteinChange": "S185*",
+                "alternateBases": "C"
+            },
+            {
+                "hugoGeneSymbol": "TMEM150C",
+                "referenceName": "4",
+                "start": 83423918,
+                "end": 83423918,
+                "referenceBases": "C",
+                "proteinChange": "C66Y",
+                "alternateBases": "T"
+            },
+            {
+                "hugoGeneSymbol": "ADAMTS16",
+                "referenceName": "5",
+                "start": 5318277,
+                "end": 5318277,
+                "referenceBases": "A",
+                "proteinChange": "T1148A",
+                "alternateBases": "G"
+            },
+            {
+                "hugoGeneSymbol": "DHX29",
+                "referenceName": "5",
+                "start": 54592136,
+                "end": 54592141,
+                "referenceBases": "CTTTGT",
+                "proteinChange": "T138_K139del",
+                "alternateBases": "-"
+            },
+            {
+                "hugoGeneSymbol": "JAKMIP2",
+                "referenceName": "5",
+                "start": 146997488,
+                "end": 146997488,
+                "referenceBases": "G",
+                "proteinChange": "Q778*",
+                "alternateBases": "A"
+            },
+            {
+                "hugoGeneSymbol": "NPR3",
+                "referenceName": "5",
+                "start": 32784951,
+                "end": 32784951,
+                "referenceBases": "A",
+                "proteinChange": "L492F",
+                "alternateBases": "T"
+            },
+            {
+                "hugoGeneSymbol": "TIMD4",
+                "referenceName": "5",
+                "start": 156381495,
+                "end": 156381495,
+                "referenceBases": "A",
+                "proteinChange": "C111S",
+                "alternateBases": "T"
+            },
+            {
+                "hugoGeneSymbol": "UBLCP1",
+                "referenceName": "5",
+                "start": 158705261,
+                "end": 158705261,
+                "referenceBases": "G",
+                "proteinChange": "V234I",
+                "alternateBases": "A"
+            },
+            {
+                "hugoGeneSymbol": "LAMA2",
+                "referenceName": "6",
+                "start": 129475728,
+                "end": 129475728,
+                "referenceBases": "G",
+                "proteinChange": "R369L",
+                "alternateBases": "T"
+            },
+            {
+                "hugoGeneSymbol": "NEU1",
+                "referenceName": "6",
+                "start": 31827960,
+                "end": 31827960,
+                "referenceBases": "G",
+                "proteinChange": "R294C",
+                "alternateBases": "A"
+            },
+            {
+                "hugoGeneSymbol": "TAGAP",
+                "referenceName": "6",
+                "start": 159460322,
+                "end": 159460322,
+                "referenceBases": "G",
+                "proteinChange": "R203G",
+                "alternateBases": "C"
+            },
+            {
+                "hugoGeneSymbol": "ABCB4",
+                "referenceName": "7",
+                "start": 87056076,
+                "end": 87056076,
+                "referenceBases": "G",
+                "proteinChange": "T685S",
+                "alternateBases": "C"
+            },
+            {
+                "hugoGeneSymbol": "EGFR",
+                "referenceName": "7",
+                "start": 55241677,
+                "end": 55241677,
+                "referenceBases": "G",
+                "proteinChange": "E709Q",
+                "alternateBases": "C"
+            },
+            {
+                "hugoGeneSymbol": "HUS1",
+                "referenceName": "7",
+                "start": 48018046,
+                "end": 48018046,
+                "referenceBases": "G",
+                "proteinChange": "H109N",
+                "alternateBases": "T"
+            },
+            {
+                "hugoGeneSymbol": "KEL",
+                "referenceName": "7",
+                "start": 142651611,
+                "end": 142651611,
+                "referenceBases": "C",
+                "proteinChange": "D226N",
+                "alternateBases": "T"
+            },
+            {
+                "hugoGeneSymbol": "LRRN3",
+                "referenceName": "7",
+                "start": 110763276,
+                "end": 110763276,
+                "referenceBases": "A",
+                "proteinChange": "N150H",
+                "alternateBases": "C"
+            },
+            {
+                "hugoGeneSymbol": "CYC1",
+                "referenceName": "8",
+                "start": 145151526,
+                "end": 145151527,
+                "referenceBases": "CT",
+                "proteinChange": "Y218Lfs*38",
+                "alternateBases": "-"
+            },
+            {
+                "hugoGeneSymbol": "RBM12B",
+                "referenceName": "8",
+                "start": 94746145,
+                "end": 94746145,
+                "referenceBases": "C",
+                "proteinChange": "E832Rfs*55",
+                "alternateBases": "-"
+            },
+            {
+                "hugoGeneSymbol": "TG",
+                "referenceName": "8",
+                "start": 133894179,
+                "end": 133894179,
+                "referenceBases": "G",
+                "proteinChange": "C237Y",
+                "alternateBases": "A"
+            },
+            {
+                "hugoGeneSymbol": "ADAMTS14",
+                "referenceName": "10",
+                "start": 72500808,
+                "end": 72500808,
+                "referenceBases": "A",
+                "proteinChange": "E608V",
+                "alternateBases": "T"
+            },
+            {
+                "hugoGeneSymbol": "BICC1",
+                "referenceName": "10",
+                "start": 60549146,
+                "end": 60549146,
+                "referenceBases": "A",
+                "proteinChange": "K242T",
+                "alternateBases": "C"
+            },
+            {
+                "hugoGeneSymbol": "MCM10",
+                "referenceName": "10",
+                "start": 13217624,
+                "end": 13217624,
+                "referenceBases": "G",
+                "proteinChange": "S237I",
+                "alternateBases": "T"
+            },
+            {
+                "hugoGeneSymbol": "NRAP",
+                "referenceName": "10",
+                "start": 115402786,
+                "end": 115402786,
+                "referenceBases": "C",
+                "proteinChange": "K374N",
+                "alternateBases": "G"
+            },
+            {
+                "hugoGeneSymbol": "PTCHD3",
+                "referenceName": "10",
+                "start": 27687473,
+                "end": 27687473,
+                "referenceBases": "T",
+                "proteinChange": "K685T",
+                "alternateBases": "G"
+            },
+            {
+                "hugoGeneSymbol": "ELP4",
+                "referenceName": "11",
+                "start": 31671663,
+                "end": 31671663,
+                "referenceBases": "G",
+                "proteinChange": "G346A",
+                "alternateBases": "C"
+            },
+            {
+                "hugoGeneSymbol": "METTL12",
+                "referenceName": "11",
+                "start": 62433355,
+                "end": 62433356,
+                "referenceBases": "-",
+                "proteinChange": "A3Rfs*25",
+                "alternateBases": "C"
+            },
+            {
+                "hugoGeneSymbol": "OR5M9",
+                "referenceName": "11",
+                "start": 56230141,
+                "end": 56230141,
+                "referenceBases": "A",
+                "proteinChange": "V246D",
+                "alternateBases": "T"
+            },
+            {
+                "hugoGeneSymbol": "PPFIA1",
+                "referenceName": "11",
+                "start": 70170996,
+                "end": 70170996,
+                "referenceBases": "G",
+                "proteinChange": "R137Q",
+                "alternateBases": "A"
+            },
+            {
+                "hugoGeneSymbol": "CIT",
+                "referenceName": "12",
+                "start": 120198851,
+                "end": 120198851,
+                "referenceBases": "G",
+                "proteinChange": "D771E",
+                "alternateBases": "C"
+            },
+            {
+                "hugoGeneSymbol": "GPR19",
+                "referenceName": "12",
+                "start": 12814170,
+                "end": 12814170,
+                "referenceBases": "G",
+                "proteinChange": "P405A",
+                "alternateBases": "C"
+            },
+            {
+                "hugoGeneSymbol": "NCOR2",
+                "referenceName": "12",
+                "start": 124904572,
+                "end": 124904572,
+                "referenceBases": "G",
+                "proteinChange": "Y471*",
+                "alternateBases": "T"
+            },
+            {
+                "hugoGeneSymbol": "PFDN5",
+                "referenceName": "12",
+                "start": 53690060,
+                "end": 53690060,
+                "referenceBases": "G",
+                "proteinChange": "X69_splice",
+                "alternateBases": "C"
+            },
+            {
+                "hugoGeneSymbol": "FBLN5",
+                "referenceName": "14",
+                "start": 92403371,
+                "end": 92403371,
+                "referenceBases": "G",
+                "proteinChange": "S100*",
+                "alternateBases": "C"
+            },
+            {
+                "hugoGeneSymbol": "ARHGEF40",
+                "referenceName": "14",
+                "start": 21544978,
+                "end": 21544978,
+                "referenceBases": "C",
+                "proteinChange": "P655A",
+                "alternateBases": "G"
+            },
+            {
+                "hugoGeneSymbol": "KCNH5",
+                "referenceName": "14",
+                "start": 63453857,
+                "end": 63453857,
+                "referenceBases": "C",
+                "proteinChange": "S161I",
+                "alternateBases": "A"
+            },
+            {
+                "hugoGeneSymbol": "SLC24A4",
+                "referenceName": "14",
+                "start": 92949084,
+                "end": 92949084,
+                "referenceBases": "T",
+                "proteinChange": "V439D",
+                "alternateBases": "A"
+            },
+            {
+                "hugoGeneSymbol": "SYNE2",
+                "referenceName": "14",
+                "start": 64516515,
+                "end": 64516515,
+                "referenceBases": "C",
+                "proteinChange": "L2522F",
+                "alternateBases": "T"
+            },
+            {
+                "hugoGeneSymbol": "CORO2B",
+                "referenceName": "15",
+                "start": 69011494,
+                "end": 69011494,
+                "referenceBases": "C",
+                "proteinChange": "Y364*",
+                "alternateBases": "A"
+            },
+            {
+                "hugoGeneSymbol": "PSTPIP1",
+                "referenceName": "15",
+                "start": 77310554,
+                "end": 77310554,
+                "referenceBases": "G",
+                "proteinChange": "K34N",
+                "alternateBases": "C"
+            },
+            {
+                "hugoGeneSymbol": "SIN3A",
+                "referenceName": "15",
+                "start": 75682046,
+                "end": 75682046,
+                "referenceBases": "G",
+                "proteinChange": "H990Y",
+                "alternateBases": "A"
+            },
+            {
+                "hugoGeneSymbol": "CDH5",
+                "referenceName": "16",
+                "start": 66420737,
+                "end": 66420737,
+                "referenceBases": "A",
+                "proteinChange": "N79T",
+                "alternateBases": "C"
+            },
+            {
+                "hugoGeneSymbol": "ITGAL",
+                "referenceName": "16",
+                "start": 30507430,
+                "end": 30507430,
+                "referenceBases": "G",
+                "proteinChange": "E506K",
+                "alternateBases": "A"
+            },
+            {
+                "hugoGeneSymbol": "PLA2G15",
+                "referenceName": "16",
+                "start": 68293421,
+                "end": 68293422,
+                "referenceBases": "GT",
+                "proteinChange": "A368Pfs*87",
+                "alternateBases": "-"
+            },
+            {
+                "hugoGeneSymbol": "ZFHX3",
+                "referenceName": "16",
+                "start": 72827204,
+                "end": 72827204,
+                "referenceBases": "A",
+                "proteinChange": "L3126R",
+                "alternateBases": "C"
+            },
+            {
+                "hugoGeneSymbol": "SPECC1",
+                "referenceName": "17",
+                "start": 20107793,
+                "end": 20107793,
+                "referenceBases": "C",
+                "proteinChange": "T144R",
+                "alternateBases": "G"
+            },
+            {
+                "hugoGeneSymbol": "ITGA2B",
+                "referenceName": "17",
+                "start": 42455065,
+                "end": 42455065,
+                "referenceBases": "C",
+                "proteinChange": "X729_splice",
+                "alternateBases": "T"
+            },
+            {
+                "hugoGeneSymbol": "SLFN5",
+                "referenceName": "17",
+                "start": 33591527,
+                "end": 33591527,
+                "referenceBases": "A",
+                "proteinChange": "L488F",
+                "alternateBases": "T"
+            },
+            {
+                "hugoGeneSymbol": "EPS15L1",
+                "referenceName": "19",
+                "start": 16552987,
+                "end": 16552987,
+                "referenceBases": "A",
+                "proteinChange": "X25_splice",
+                "alternateBases": "G"
+            },
+            {
+                "hugoGeneSymbol": "HAUS8",
+                "referenceName": "19",
+                "start": 17169444,
+                "end": 17169444,
+                "referenceBases": "T",
+                "proteinChange": "K187Sfs*9",
+                "alternateBases": "-"
+            },
+            {
+                "hugoGeneSymbol": "KLC3",
+                "referenceName": "19",
+                "start": 45851969,
+                "end": 45851969,
+                "referenceBases": "C",
+                "proteinChange": "T282M",
+                "alternateBases": "T"
+            },
+            {
+                "hugoGeneSymbol": "MYBPC2",
+                "referenceName": "19",
+                "start": 50961918,
+                "end": 50961919,
+                "referenceBases": "-",
+                "proteinChange": "R806Qfs*154",
+                "alternateBases": "C"
+            },
+            {
+                "hugoGeneSymbol": "NFKBID",
+                "referenceName": "19",
+                "start": 36381371,
+                "end": 36381371,
+                "referenceBases": "C",
+                "proteinChange": "V210L",
+                "alternateBases": "G"
+            },
+            {
+                "hugoGeneSymbol": "SGTA",
+                "referenceName": "19",
+                "start": 2762579,
+                "end": 2762579,
+                "referenceBases": "C",
+                "proteinChange": "E187D",
+                "alternateBases": "G"
+            },
+            {
+                "hugoGeneSymbol": "ID1",
+                "referenceName": "20",
+                "start": 30193489,
+                "end": 30193489,
+                "referenceBases": "A",
+                "proteinChange": "D100G",
+                "alternateBases": "G"
+            },
+            {
+                "hugoGeneSymbol": "SFI1",
+                "referenceName": "22",
+                "start": 32013014,
+                "end": 32013014,
+                "referenceBases": "G",
+                "proteinChange": "E1154D",
+                "alternateBases": "T"
+            },
+            {
+                "hugoGeneSymbol": "SLC2A11",
+                "referenceName": "22",
+                "start": 24217312,
+                "end": 24217312,
+                "referenceBases": "C",
+                "proteinChange": "S104Y",
+                "alternateBases": "A"
+            },
+            {
+                "hugoGeneSymbol": "SMC1B",
+                "referenceName": "22",
+                "start": 45748333,
+                "end": 45748333,
+                "referenceBases": "G",
+                "proteinChange": "H1141Q",
+                "alternateBases": "C"
+            },
+            {
+                "hugoGeneSymbol": "CSMD3",
+                "referenceName": "8",
+                "start": 113702186,
+                "end": 113702186,
+                "referenceBases": "T",
+                "proteinChange": "E689V",
+                "alternateBases": "A"
+            },
+            {
+                "hugoGeneSymbol": "BRCA2",
+                "referenceName": "13",
+                "start": 32905141,
+                "end": 32905145,
+                "referenceBases": "CAAAT",
+                "proteinChange": "N257Kfs*17",
+                "alternateBases": "-"
+            }
+        ],
+        options = {
+            genome: "hg19",
+            showRuler: true,
+            locus: "all",
+            // Insert your applications api key here,  or use OAuth
+            apiKey: 'AIzaSyA2iIc9YKHIdXN74hshw64sPPLSr0lWeq0',
+            tracks: [
+              {
+                  url: 'https://data.broadinstitute.org/igvdata/test/igv-web/segmented_data_080520.seg.gz',
+                  indexed: false,
+                  name: 'CNA'
+              },
+                {
+                    sourceType: 'ga4gh',
+                    type: 'variant',
+                    url: 'https://genomics.googleapis.com/v1',
+                    variantSetId: '10473108253681171589',
+                    name: 'MUT',
+                    visibilityWindow: 1000000000000000000000000000,
+                    displayMode: "COLLAPSED",
+                    height: 30,
+                    wgData: data,
+                    id: 'variant',
+                }
+            ]
+        };
+        igv.createBrowser(div, options);
+    });
+
+</script>
+
+</body>
+
+</html>
