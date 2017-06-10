@@ -382,7 +382,9 @@ var igv = (function (igv) {
             browser.$searchInput = $('<input type="text" placeholder="Locus Search">');
 
             browser.$searchInput.change(function (e) {
+
               igv.displayChromosomePanel.validateChromosomedisplayPanel((e.target).val().toLowerCase());
+
                 browser.parseSearchInput( $(e.target).val().toLowerCase() );
             });
 
