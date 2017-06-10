@@ -105,6 +105,9 @@ var igv = (function (igv) {
             $header.append($('<div class="igv-logo-nonav">'));
         }
 
+        igv.displayChromosomePanel();
+        igv.displayChromosomePanel.validateChromosomedisplayPanel(config.locus);
+
         // phone home -- counts launches.  Count is anonymous, needed for our continued funding.  Please don't delete
 
 
@@ -294,6 +297,57 @@ var igv = (function (igv) {
 
     }
 
+    igv.displayChromosomePanel = function () {
+     var canvas = $("<canvas class='igv-chromosome-display-panel' id='scaleDisplay'>Browser Does not support Canvas element , Please update your browser</canvas>");
+     canvas.width  = document.body.clientWidth;
+     canvas.height = document.body.clientHeight;
+     canvas.style.position = "absolute";
+     $(".igvRootDiv").after('.igv-chromosome-display-panel');
+     if (canvas.getContext) {
+       var ctx=canvas.getContext("2d");
+       var cntx=canvas.width*0.05;  //Will use to center the Chromosome Panel
+       igv.graphics.strokeLine(ctx,cntx,canvas.height*0.45,canvas.width-cntx,canvas.height*0.45);
+       igv.graphics.strokeLine(ctx,cntx,canvas.height*0.55,canvas.width-cntx,canvas.height*0.55);
+     var chromosomeArray= [249250621,243199373,198022430,191154276,180915260,171115067,159138663,146364022,141213431,135534747,135006516,133851895,115169878,107349540,102531392,90354753,81195210,78077248,59128983,63025520,48129895,51304566,155270560,59373566];
+     var totalBP=3095677412; // Sum of elements of chromosomeArray .
+     var chrLen=chromosomeArray.length;
+     var arrX=[0];
+     for (var i=0; i<chrLen+1 ; i++) {
+       arrX.push(canvas.width/totalBP*chromosomeArray[i]);
+       if (i !== 0)
+       arrX[i]=arrX[i-1] + arrX[i];
+     }
+     arrX = _.map(arrX, function(num) {return num*0.9+cntx;});  // Will make Chromosome Display Panel Occupy 90% of Canvas and position it to center
+     // Drawing Spikes that will make boxes for each chromosome
+     var sampleProps = {
+       font: "10px serif",
+       textBaseline: "hanging",
+       textAlign: "center",
+     };
+     var txtDisplay="";
+     for(i=0;i< chrLen;i++) {
+         txtDisplay= i < 22 ? (i+1).toString() : i === 22 ? 'X' : 'Y' ;
+         igv.graphics.strokeLine(ctx,arrX[i],canvas.height*0.45,arrX[i],canvas.height*0.55);
+         igv.graphics.fillText(ctx,txtDisplay,(arrX[i]+arrX[i+1])/2,canvas.height*0.5,sampleProps); // Filling the made box with chromosome name
+     }
+     igv.graphics.strokeLine(ctx,canvas.width-cntx,canvas.height*0.45,canvas.width-cntx,canvas.height*0.55);
+     igv.displayChromosomePanel.resize();
+   }
+
+   igv.displayChromosomePanel.prototype.resize = function () {
+     var canvas=document.getElementById('scaleDisplay');
+     canvas.width  = document.body.clientWidth;
+     canvas.height = document.body.clientHeight;
+   }
+   }
+
+    igv.displayChromosomePanel.prototype.validateChromosomeDisplayPanel = function (result) {
+      if (result === 'all')
+      $(".igv-chromosome-display-panel").show();
+      else
+      $(".igv-chromosome-display-panel").hide();
+    }
+
     function createStandardControls(browser, config) {
 
         var $igvLogo,
@@ -328,6 +382,7 @@ var igv = (function (igv) {
             browser.$searchInput = $('<input type="text" placeholder="Locus Search">');
 
             browser.$searchInput.change(function (e) {
+              igv.displayChromosomePanel.validateChromosomedisplayPanel((e.target).val().toLowerCase());
                 browser.parseSearchInput( $(e.target).val().toLowerCase() );
             });
 
