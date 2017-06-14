@@ -502,78 +502,75 @@ var igv = (function (igv) {
     }
 
     igv.displayChromosomePanel = function () {
-     var canvas = document.createElement('canvas');
-     canvas.id     = "scaleDisplay";
-     canvas.className = 'igv-chromosome-display-panel';
-     canvas.style.width  = document.body.clientWidth;
-     canvas.style.height = document.body.clientHeight/3;
-     canvas.style.position = "relative";
-     canvas.style.display = 'block';
-     canvas.style.overflow = 'auto';
-     canvas.style.float = 'left';
-     document.getElementById('igvControlDiv').appendChild(canvas);
-     igv.resizeDisplay();
-   }
+        var canvas = document.createElement('canvas');
+        canvas.id = "scaleDisplay";
+        canvas.className = 'igv-chromosome-display-panel';
+        canvas.style.position = "relative";
+        canvas.style.display = 'block';
+        canvas.style.overflow = 'auto';
+        canvas.style.float = 'left';
+        document.getElementById('igvControlDiv').appendChild(canvas);
+        igv.resizeDisplay();
+    }
 
-   igv.resizeDisplay = function () {
-     var canvas=document.getElementById('scaleDisplay');
-     canvas.width  = document.body.clientWidth;
-     canvas.height = document.body.clientHeight/3;
-     if (canvas.getContext) {
-       var ctx=canvas.getContext("2d");
-       var cntx=canvas.width*0.05;  //Will use to center the Chromosome Panel
-       igv.graphics.strokeLine(ctx,cntx,40,canvas.width-cntx,40);
-       igv.graphics.strokeLine(ctx,cntx,60,canvas.width-cntx,60);
-     var chromosomeArray = [249250621,243199373,198022430,191154276,180915260,171115067,159138663,146364022,141213431,135534747,135006516,133851895,115169878,107349540,102531392,90354753,81195210,78077248,59128983,63025520,48129895,51304566,155270560,59373566];
-     var totalBP=3095677412; // Sum of elements of chromosomeArray . In-bounds checked
-     var chrLen=chromosomeArray.length;
-     var arrX=[0];
-     for (var i=0; i<chrLen+1 ; i++) {
-       arrX.push(canvas.width/totalBP*chromosomeArray[i]);
-       if (i !== 0)
-       arrX[i]=arrX[i-1] + arrX[i];
-     }
-     arrX = _.map(arrX, function(num) {return num*0.9+cntx;});  // Will make Chromosome Display Panel Occupy 90% of Canvas and position it to center
-     // Drawing Spikes that will make boxes for each chromosome
-     var sampleProps = {
-       font: "10px serif",
-       textBaseline: "hanging",
-       textAlign: "center",
-     };
-     var txtDisplay="";
-     var div;
-     var divId ='';
-     for(i=0;i< chrLen;i++) {
-       div = document.createElement('div');
-       canvas.append(div);
-       div.style.backgroundColor = 'red';
-       div.className = 'chromosomePane';
-       div.style.position = "absolute";
-       div.style.left = (arrX[i]).toString()+'px';
-       div.style.top = '41px';
-       div.overflow = 'visible';
-       div.style.height = '20px';
-       div.style.width = Math.floor((arrX[i+1] - arrX[i])+1).toString()+'px';
-       //var div = $('<div class="attempt" style="background-color : red; position : absolute; left=' +((arrX[i]+arrX[i+1])/2).toString()+'px; ' + ' top : 47px;"' + '></div> ');
-       divId = i < 22 ? 'chr' + (i+1).toString() : i === 22 ? 'chrX' : 'chrY';
-       canvas.append(div);
-       txtDisplay= i < 22 ? (i+1).toString() : i === 22 ? 'X' : 'Y' ;
-       igv.graphics.strokeLine(ctx,arrX[i],40,arrX[i],60);
-       igv.graphics.fillText(ctx,txtDisplay,(arrX[i]+arrX[i+1])/2,47,sampleProps);
-     }
-     igv.graphics.strokeLine(ctx,canvas.width-cntx,40,canvas.width-cntx,60);
-   }
-   else {
-     $('#scaleDisplay').text("Please update your browser");
-   }
-   }
+    igv.resizeDisplay = function () {
+        var canvas = document.getElementById('scaleDisplay');
+        canvas.width = document.body.clientWidth;
+        canvas.height = document.body.clientHeight / 3;
+        if (canvas.getContext) {
+            var ctx = canvas.getContext("2d");
+            var cntx = canvas.width * 0.05; //Will use to center the Chromosome Panel
+            var chromosomeArray = [249250621, 243199373, 198022430, 191154276, 180915260, 171115067, 159138663, 146364022, 141213431, 135534747, 135006516, 133851895, 115169878, 107349540, 102531392, 90354753, 81195210, 78077248, 59128983, 63025520, 48129895, 51304566, 155270560, 59373566];
+            var totalBP = _.reduce(chromosomeArray, function(memo, num){ return memo + num; }, 0);
+            var chrLen = chromosomeArray.length;
+            var arrX = [0];
+            for (var i = 0; i < chrLen + 1; i++) {
+                arrX.push(canvas.width / totalBP * chromosomeArray[i]);
+                if (i !== 0)
+                    arrX[i] = arrX[i - 1] + arrX[i];
+            }
+            arrX = _.map(arrX, function (num) {
+                return num * 0.9 + cntx;
+            }); // Will make Chromosome Display Panel Occupy 90% of Canvas and position it to center
+            // Drawing Spikes that will make boxes for each chromosome
+            var sampleProps = {
+                font: "10px serif",
+                textBaseline: "hanging",
+                textAlign: "center",
+            };
+            var txtDisplay = "";
+            var div;
+            var divId = '';
+            for (i = 0; i < chrLen; i++) {
+                div = document.createElement('div');
+                canvas.append(div);
+                div.style.backgroundColor = 'red';
+                div.className = 'chromosomePane';
+                div.style.position = "absolute";
+                div.style.left = (arrX[i]).toString() + 'px';
+                div.style.top = '41px';
+                div.overflow = 'visible';
+                div.style.height = '20px';
+                div.style.width = Math.floor((arrX[i + 1] - arrX[i]) + 1).toString() + 'px';
+                //var div = $('<div class="attempt" style="background-color : red; position : absolute; left=' +((arrX[i]+arrX[i+1])/2).toString()+'px; ' + ' top : 47px;"' + '></div> ');
+                divId = i < 22 ? 'chr' + (i + 1).toString() : i === 22 ? 'chrX' : 'chrY';
+                canvas.append(div);
+                txtDisplay = i < 22 ? (i + 1).toString() : i === 22 ? 'X' : 'Y';
+                igv.graphics.strokeLine(ctx, arrX[i], 40, arrX[i], 60);
+                igv.graphics.fillText(ctx, txtDisplay, (arrX[i] + arrX[i + 1]) / 2, 47, sampleProps);
+            }
+            igv.graphics.strokeLine(ctx, canvas.width - cntx, 40, canvas.width - cntx, 60);
+        } else {
+            $('#scaleDisplay').text("Please update your browser");
+        }
+    }
 
-   igv.validateChromosomeDisplayPanel = function (result) {
-     if ('all' === result)
-       $('#scaleDisplay').show();
-     else
-       $('#scaleDisplay').hide();
-   }
+    igv.validateChromosomeDisplayPanel = function (result) {
+        if ('all' === result)
+            $('#scaleDisplay').show();
+        else
+            $('#scaleDisplay').hide();
+    }
 
     igv.removeBrowser = function () {
         igv.browser.$root.remove();
