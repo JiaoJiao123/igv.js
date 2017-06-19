@@ -195,8 +195,10 @@ var igv = (function (igv) {
             var self = this,
                 lastX = 0,
                 yShim = 2,
-                tickHeight = 10;
-                bpPerPixel = this.bpPerPixel;
+
+                tickHeight = 10,
+                bpPerPixel = options.referenceFrame.bpPerPixel;
+
             _.each(igv.browser.genome.wgChromosomeNames, function (chrName) {
 
                 var chromosome = igv.browser.genome.getChromosome(chrName),
