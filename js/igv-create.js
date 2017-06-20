@@ -47,7 +47,11 @@ var igv = (function (igv) {
             igv.removeBrowser();
         }
 
-        config.locus=config.locus.toLowerCase();
+        if (!isNaN(config.locus[3]) || config.locus.toLowerCase() === 'all')    // For chrX , chrY , chrM
+        config.locus = config.locus.toLowerCase();
+         else {
+           config.locus = config.locus.substring(0,3).toLowerCase() + config.locus[3];
+         }
 
         setDefaults(config);
 
@@ -328,7 +332,13 @@ var igv = (function (igv) {
             browser.$searchInput = $('<input type="text" placeholder="Locus Search">');
 
             browser.$searchInput.change(function (e) {
-                browser.parseSearchInput( $(e.target).val().toLowerCase() );
+              var result = $(e.target).val();
+              if (!isNaN(result[3]) || result.toLowerCase() === 'all')    // For chrX , chrY , chrM
+              result = result.toLowerCase();
+               else {
+                 result = result.substring(0,3).toLowerCase() + result[3];
+               }
+                browser.parseSearchInput( result );
             });
 
             $faSearch = $('<i class="fa fa-search">');
