@@ -295,13 +295,48 @@ var igv = (function (igv) {
             left,
             rulerSweepWidth,
             rulerSweepThreshold = 1,
-            dx;
+            dx,
+            cnv = this.canvas;
 
         this.removeRulerMouseHandlers();
 
-        if ('all' === this.genomicState.chromosome.name) {
-            return;
-        }
+        $(self.canvas).on('click.rulerZoom',(function handler(e) {
+
+            var chromosomeArray = [249250621,243199373,198022430,191154276,180915260,171115067,159138663,146364022,141213431,135534747,135006516,133851895,115169878,107349540,102531392,90354753,81195210,78077248,59128983,63025520,48129895,51304566,155270560,59373566],
+                totalBP = _.reduce(chromosomeArray, function(memo, num){ return memo + num; }, 0),
+                chrLen = chromosomeArray.length,
+                arrX=[0];
+
+            e.preventDefault();
+            e = $.event.fix(e);
+            e.stopPropagation();
+
+            coords = igv.translateMouseCoordinates(e, self.canvas);
+
+            arrX.push(Math.floor(cnv.width/totalBP*chromosomeArray[0]));
+            for (var i=1; i<chrLen+1 ; i++) {
+                  arrX.push(Math.floor(cnv.width/totalBP*chromosomeArray[i]));
+                  arrX[i] = arrX[i-1] + arrX[i];
+                }
+
+            var chromosomeNumber = 0;
+            for (i=0 ;i<chrLen; i++) {
+              if (coords.x > arrX[i] && coords.x < arrX[i+1]) {
+                  chromosomeNumber = i + 1;
+                  break;
+                  }
+                }
+                
+            var search =  (chromosomeNumber === 0 ? 'all' : chromosomeNumber <= 22 ? 'chr' + (chromosomeNumber).toString() : chromosomeNumber === 23 ? 'chrX' : 'chrY');
+            igv.browser.parseSearchInput( search );
+
+          }));
+
+          if ('all' === self.genomicState.chromosome.name) {
+            return ;
+          }
+
+          $(this.canvas).off('click.rulerZoom'); // If not 'all' then remove the above click handler
         // self.trackView.trackDiv.dataset.rulerTrack = "rulerTrack";
 
         // ruler sweeper widget surface
