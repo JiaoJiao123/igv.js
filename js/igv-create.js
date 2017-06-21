@@ -47,10 +47,10 @@ var igv = (function (igv) {
             igv.removeBrowser();
         }
 
-        if (/chr[x|y|m]$/i.test(config.locus)) {
-        config.locus = "chr" + config.locus[3].toUpperCase();
+        if (/^chr[x|y|m]$/i.test(config.locus)) {
+            config.locus = "chr" + config.locus[3].toUpperCase();
         } else {
-        config.locus = config.locus.toLowerCase();
+            config.locus = config.locus.toLowerCase();
         }
 
         setDefaults(config);
@@ -332,12 +332,12 @@ var igv = (function (igv) {
             browser.$searchInput = $('<input type="text" placeholder="Locus Search">');
 
             browser.$searchInput.change(function (e) {
-              var result = $(e.target).val();
-              if (/chr[x|y|m]$/i.test(result)) {
-              result = "chr" + result[3].toUpperCase();
-              } else {
-              result = result.toLowerCase();
-              }
+                var result = $(e.target).val();
+                if (/^chr[x|y|m]$/i.test(result)) {
+                    result = "chr" + result[3].toUpperCase();
+                } else {
+                    result = result.toLowerCase();
+                }
                 browser.parseSearchInput( result );
             });
 

@@ -315,17 +315,17 @@ var igv = (function (igv) {
 
             arrX.push(Math.floor(cnv.width/totalBP*chromosomeArray[0]));
             for (var i=1; i<chrLen+1 ; i++) {
-                  arrX.push(Math.floor(cnv.width/totalBP*chromosomeArray[i]));
-                  arrX[i] = arrX[i-1] + arrX[i];
-                }
+                arrX.push(Math.floor(cnv.width/totalBP*chromosomeArray[i]));
+                arrX[i] = arrX[i-1] + arrX[i];
+            }
 
             var chromosomeNumber = 0;
             for (i=0 ;i<chrLen; i++) {
-              if (coords.x > arrX[i] && coords.x < arrX[i+1]) {
-                  chromosomeNumber = i + 1;
-                  break;
-                  }
+                if (coords.x > arrX[i] && coords.x < arrX[i+1]) {
+                    chromosomeNumber = i + 1;
+                    break;
                 }
+            }
                 
             var search =  (chromosomeNumber === 0 ? 'all' : chromosomeNumber <= 22 ? 'chr' + (chromosomeNumber).toString() : chromosomeNumber === 23 ? 'chrX' : 'chrY');
             igv.browser.parseSearchInput( search );
