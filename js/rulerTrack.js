@@ -78,6 +78,7 @@ var igv = (function (igv) {
             bpPerPixel;
 
         if (options.referenceFrame.chrName === "all") {
+            this.bpPerPixel = options.referenceFrame.bpPerPixel;
             drawAll.call(this);
         } else {
             updateLocusLabelWithGenomicState(options.genomicState);
