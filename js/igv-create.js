@@ -47,11 +47,11 @@ var igv = (function (igv) {
             igv.removeBrowser();
         }
 
-        if (!isNaN(config.locus[3]) || config.locus.toLowerCase() === 'all')    // For chrX , chrY , chrM
+        if (/chr[x|y|m]$/i.test(config.locus)) {
+        config.locus = "chr" + config.locus[3].toUpperCase();
+        } else {
         config.locus = config.locus.toLowerCase();
-         else {
-           config.locus = config.locus.substring(0,3).toLowerCase() + config.locus[3];
-         }
+        }
 
         setDefaults(config);
 
@@ -333,11 +333,11 @@ var igv = (function (igv) {
 
             browser.$searchInput.change(function (e) {
               var result = $(e.target).val();
-              if (!isNaN(result[3]) || result.toLowerCase() === 'all')    // For chrX , chrY , chrM
+              if (/chr[x|y|m]$/i.test(result)) {
+              result = "chr" + result[3].toUpperCase();
+              } else {
               result = result.toLowerCase();
-               else {
-                 result = result.substring(0,3).toLowerCase() + result[3];
-               }
+              }
                 browser.parseSearchInput( result );
             });
 
