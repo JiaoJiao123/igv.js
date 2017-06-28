@@ -234,7 +234,7 @@ var igv = (function (igv) {
                         newCenter = Math.round(referenceFrame.start + canvasCoords.x * referenceFrame.bpPerPixel);
                         if(referenceFrame.chrName === "all") {
                             chr = igv.browser.genome.getChromosomeCoordinate(newCenter).chr;
-                            igv.browser.search(chr);
+                            igv.browser.parseSearchInput(chr);
 
                         } else {
                             self.genomicState.referenceFrame.bpPerPixel /= 2;
@@ -326,7 +326,7 @@ var igv = (function (igv) {
                     break;
                 }
             }
-                
+
             var search =  (chromosomeNumber === 0 ? 'all' : chromosomeNumber <= 22 ? 'chr' + (chromosomeNumber).toString() : chromosomeNumber === 23 ? 'chrX' : 'chrY');
             igv.browser.parseSearchInput( search );
 
