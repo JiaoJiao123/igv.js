@@ -192,20 +192,35 @@ var igv = (function (igv) {
         var self = this;
 
         return new Promise(function (fullfill, reject) {
-            var options = igv.buildOptions(self.config);
+            var options = igv.buildOptions(self.config, {
+                method: self.config.method,
+                sendData: self.config.sendData,
+                json: self.config.json,
+                contentType: self.config.contentType
+            });
 
             function parseData(data) {
-                self.header = self.parser.parseHeader(data);
-                if (self.header instanceof String && self.header.startsWith("##gff-version 3")) {
-                    self.format = 'gff3';
+                if (self.config.json) {
+                    fullfill(data);
+                } else {
+                    self.header = self.parser.parseHeader(data);
+                    if (self.header instanceof String && self.header.startsWith("##gff-version 3")) {
+                        self.format = 'gff3';
+                    }
+                    fullfill(self.parser.parseFeatures(data));   // <= PARSING DONE HERE
                 }
-                fullfill(self.parser.parseFeatures(data));   // <= PARSING DONE HERE
             }
-
-            igvxhr
-                .loadString(self.config.url, options)
-                .then(parseData)
-                .catch(reject);
+            if (self.config.json) {
+                igvxhr
+                    .loadJson(self.config.url, options)
+                    .then(parseData)
+                    .catch(reject);
+            } else {
+                igvxhr
+                    .loadString(self.config.url, options)
+                    .then(parseData)
+                    .catch(reject);
+            }
 
         });
     };

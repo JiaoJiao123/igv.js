@@ -169,6 +169,8 @@ var igv = (function (igv) {
 
                         igv.browser.windowSizePanel.updateWithGenomicState(_.first(igv.browser.genomicStateList));
                     }
+                    var segTrack = igv.browser.findTracks("type", "seg")[0];
+                    segTrack.sortSamples(genomicStateList[0].chromosome.name, genomicStateList[0].start, genomicStateList[0].end, 'DESC');
 
                 } else {
                     errorString = 'Unrecognized locus ' + lociWithConfiguration(config);
