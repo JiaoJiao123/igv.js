@@ -31,7 +31,7 @@
 var igv = (function (igv) {
 
     var vGap = 2;
-    var DEFAULT_VISIBILITY_WINDOW = 100000;
+    var DEFAULT_VISIBILITY_WINDOW = 10000000000;
 
     igv.VariantTrack = function (config) {
 
@@ -48,7 +48,7 @@ var igv = (function (igv) {
         this.expandedCallHeight = config.expandedCallHeight || 10;
 
         this.featureHeight = config.featureHeight || 14;
-
+        this.wgData = config.wgData;
         this.featureSource = new igv.FeatureSource(config);
 
         this.homrefColor = config.homrefColor || "rgb(200, 200, 200)"
@@ -93,17 +93,17 @@ var igv = (function (igv) {
 
     function computeVisibilityWindow() {
 
-        if (this.callSets) {
-            if (this.callSets.length < 10) {
-                this.visibilityWindow = DEFAULT_VISIBILITY_WINDOW;
-            }
-            else {
-                this.visibilityWindow = 1000 + ((2500 / this.callSets.length) * 40);
-            }
-        }
-        else {
+        // if (this.callSets) {
+        //     if (this.callSets.length < 10) {
+        //         this.visibilityWindow = DEFAULT_VISIBILITY_WINDOW;
+        //     }
+        //     else {
+        //         this.visibilityWindow = 1000 + ((2500 / this.callSets.length) * 40);
+        //     }
+        // }
+        // else {
             this.visibilityWindow = DEFAULT_VISIBILITY_WINDOW;
-        }
+        // }
 
         this.featureSource.visibilityWindow = this.visibilityWindow;
 
@@ -189,7 +189,61 @@ var igv = (function (igv) {
         if (callSets && callSets.length > 0 && "COLLAPSED" !== this.displayMode) {
             igv.graphics.strokeLine(ctx, 0, this.variantBandHeight, pixelWidth, this.variantBandHeight, {strokeStyle: 'rgb(224,224,224) '});
         }
+        if (this.wgData) {
 
+            for (i = 0, len = this.wgData.length; i < len; i++) {
+                variant = this.wgData[i];
+                //if (variant.end < bpStart) continue;
+                //  if (variant.start > bpEnd) break;
+                console.log(i);
+                console.log(variant);
+                py = 10 ;//+ ("COLLAPSED" === this.displayMode ? 0 : variant.row * (this.variantHeight + vGap));
+                h = this.variantHeight;
+
+                px = Math.round((variant.start - bpStart) / bpPerPixel);
+                px1 = Math.round((variant.end - bpStart) / bpPerPixel);
+                pw = Math.max(1, px1 - px);
+                if (pw < 3) {
+                    pw = 3;
+                    px -= 1;
+                } else if (pw > 5) {
+                    px += 1;
+                    pw -= 2;
+                }
+
+                ctx.fillStyle = this.color;
+                ctx.fillRect(px, py, pw, h);
+
+
+                if (callSets && variant.calls && "COLLAPSED" !== this.displayMode) {
+                    h = callHeight;
+                    for (j = 0; j < callSets.length; j++) {
+                        callSet = callSets[j];
+                        call = variant.calls[callSet.id];
+                        if (call) {
+
+                            // Determine genotype
+                            allVar = allRef = true;  // until proven otherwise
+                            call.genotype.forEach(function (g) {
+                                if (g != 0) allRef = false;
+                                if (g == 0) allVar = false;
+                            });
+
+                            if (allRef) {
+                                ctx.fillStyle = this.homrefColor;
+                            } else if (allVar) {
+                                ctx.fillStyle = this.homvarColor;
+                            } else {
+                                ctx.fillStyle = this.hetvarColor;
+                            }
+
+                            py = this.variantBandHeight + vGap + (j + variant.row) * callHeight;
+                            ctx.fillRect(px, py, pw, h);
+                        }
+                    }
+                }
+            }
+        }
         if (featureList) {
             for (i = 0, len = featureList.length; i < len; i++) {
                 variant = featureList[i];
