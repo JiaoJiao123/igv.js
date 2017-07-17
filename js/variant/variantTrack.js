@@ -31,7 +31,7 @@
 var igv = (function (igv) {
 
     var vGap = 2;
-    var DEFAULT_VISIBILITY_WINDOW = 100000;
+    var DEFAULT_VISIBILITY_WINDOW = 1000;
 
     igv.VariantTrack = function (config) {
 
@@ -42,13 +42,11 @@ var igv = (function (igv) {
 
         this.displayMode = config.displayMode || "EXPANDED";    // COLLAPSED | EXPANDED | SQUISHED
         this.labelDisplayMode = config.labelDisplayMode;
-
         this.variantHeight = config.variantHeight || 10;
-        this.squishedCallHeight = config.squishedCallHeight || 1;
-        this.expandedCallHeight = config.expandedCallHeight || 10;
-
+        this.squishedCallHeight = this.displayWG ? (config.squishedCallHeight || 2) : (config.squishedCallHeight || 1);    //Prefer user defined args until not specified. Use 2 for constructing Whole genome by default
+        this.expandedCallHeight = this.displayWG ? (config.expandedCallHeight || 12) : (config.squishedCallHeight || 10);  //Prefer user defined args until not specified. Use 12 for constructing Whole genome by default
         this.featureHeight = config.featureHeight || 14;
-
+        this.wgData = config.wgData;
         this.featureSource = new igv.FeatureSource(config);
 
         this.homrefColor = config.homrefColor || "rgb(200, 200, 200)"
@@ -170,7 +168,8 @@ var igv = (function (igv) {
 
     igv.VariantTrack.prototype.draw = function (options) {
 
-        var featureList = options.features,
+        var myself = this,
+            featureList = options.features,
             ctx = options.context,
             bpPerPixel = options.bpPerPixel,
             bpStart = options.bpStart,
@@ -178,7 +177,9 @@ var igv = (function (igv) {
             pixelHeight = options.pixelHeight,
             bpEnd = bpStart + pixelWidth * bpPerPixel + 1,
             callHeight = ("EXPANDED" === this.displayMode ? this.expandedCallHeight : this.squishedCallHeight),
-            px, px1, pw, py, h, style, i, variant, call, callSet, j, allRef, allVar, callSets;
+            px, px1, pw, py, h, style, i, variant, call, callSet, j, allRef, allVar, callSets,
+            sampleHeight = this.displayMode === "EXPANDED" ? this.expandedCallHeight : this.squishedCallHeight,
+            border = ("SQUISHED" === this.displayMode) ? 0 : 1;
 
         this.variantBandHeight = 10 + this.nRows * (this.variantHeight + vGap);
 
@@ -188,6 +189,109 @@ var igv = (function (igv) {
 
         if (callSets && callSets.length > 0 && "COLLAPSED" !== this.displayMode) {
             igv.graphics.strokeLine(ctx, 0, this.variantBandHeight, pixelWidth, this.variantBandHeight, {strokeStyle: 'rgb(224,224,224) '});
+        }
+
+
+        if (this.wgData) {
+
+          for (i = 0, len = this.wgData.length; i < len; i++) {
+              variant = this.wgData[i];
+              //if (variant.end < bpStart) continue;
+            //  if (variant.start > bpEnd) break;
+            console.log(i);
+            console.log(variant);
+              py = 10 ;//+ ("COLLAPSED" === this.displayMode ? 0 : variant.row * (this.variantHeight + vGap));
+              h = this.variantHeight;
+
+              px = Math.round((variant.start - bpStart) / bpPerPixel);
+              px1 = Math.round((variant.end - bpStart) / bpPerPixel);
+              pw = Math.max(1, px1 - px);
+              if (pw < 3) {
+                  pw = 3;
+                  px -= 1;
+              } else if (pw > 5) {
+                  px += 1;
+                  pw -= 2;
+              }
+
+              ctx.fillStyle = this.color;
+              ctx.fillRect(px, py, pw, h);
+
+
+              if (callSets && variant.calls && "COLLAPSED" !== this.displayMode) {
+                  h = callHeight;
+                  for (j = 0; j < callSets.length; j++) {
+                      callSet = callSets[j];
+                      call = variant.calls[callSet.id];
+                      if (call) {
+
+                          // Determine genotype
+                          allVar = allRef = true;  // until proven otherwise
+                          call.genotype.forEach(function (g) {
+                              if (g != 0) allRef = false;
+                              if (g == 0) allVar = false;
+                          });
+
+                          if (allRef) {
+                              ctx.fillStyle = this.homrefColor;
+                          } else if (allVar) {
+                              ctx.fillStyle = this.homvarColor;
+                          } else {
+                              ctx.fillStyle = this.hetvarColor;
+                          }
+
+                          py = this.variantBandHeight + vGap + (j + variant.row) * callHeight;
+                          ctx.fillRect(px, py, pw, h);
+                      }
+                  }
+              }
+          }
+        }
+/*
+        if (this.displayWG) {
+            xScale = bpPerPixel;
+            for (i = 0, len = featureList.length; i < len; i++) {
+                sample = featureList[i].sample;
+                if (!this.samples.hasOwnProperty(sample)) {
+                    this.samples[sample] = myself.sampleCount;
+                    this.sampleNames.push(sample);
+                    this.sampleCount++;
+                }
+            }
+
+            checkForLog(featureList);
+
+            for (i = 0, len = featureList.length; i < len; i++) {
+
+                segment = featureList[i];
+
+                if (segment.end < bpStart) continue;
+                if (segment.start > bpEnd) break;
+                y = myself.samples[segment.sample] * sampleHeight + border;
+
+                value = segment.value;
+                if (!myself.isLog) {
+                    value = Math.log2(value / 2);
+                }
+
+                if (value < -0.1) {
+                    color = myself.negColorScale.getColor(value);
+                }
+                else if (value > 0.1) {
+                    color = myself.posColorScale.getColor(value);
+                }
+                else {
+                    color = "white";
+                }
+
+                px = Math.round((segment.start - bpStart) / xScale);
+                px1 = Math.round((segment.end - bpStart) / xScale);
+                pw = Math.max(1, px1 - px);
+
+                igv.graphics.fillRect(ctx, px, y, pw, sampleHeight - 2 * border, {fillStyle: color});
+
+            }
+            return ;
         }
 
         if (featureList) {
@@ -243,6 +347,7 @@ var igv = (function (igv) {
                 }
             }
         }
+        */
         else {
             console.log("No feature list");
         }
