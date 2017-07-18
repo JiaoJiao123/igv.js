@@ -31,7 +31,7 @@
 var igv = (function (igv) {
 
     var vGap = 2;
-    var DEFAULT_VISIBILITY_WINDOW = 1000;
+    var DEFAULT_VISIBILITY_WINDOW = 1000000000000;
 
     igv.VariantTrack = function (config) {
 
