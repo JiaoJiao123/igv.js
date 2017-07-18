@@ -198,8 +198,8 @@ var igv = (function (igv) {
               variant = this.wgData[i];
               //if (variant.end < bpStart) continue;
             //  if (variant.start > bpEnd) break;
-            console.log(i);
-            console.log(variant);
+          //  console.log(i);
+          //  console.log(variant);
               py = 10 ;//+ ("COLLAPSED" === this.displayMode ? 0 : variant.row * (this.variantHeight + vGap));
               h = this.variantHeight;
 
@@ -293,6 +293,7 @@ var igv = (function (igv) {
             }
             return ;
         }
+*/
 
         if (featureList) {
             for (i = 0, len = featureList.length; i < len; i++) {
@@ -347,7 +348,6 @@ var igv = (function (igv) {
                 }
             }
         }
-        */
         else {
             console.log("No feature list");
         }
