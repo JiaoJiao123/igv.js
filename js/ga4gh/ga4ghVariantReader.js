@@ -33,6 +33,9 @@ var igv = (function (igv) {
         this.variantSetId = config.variantSetId;
         this.callSetIds = config.callSetIds;
         this.includeCalls = (config.includeCalls === undefined ? true : config.includeCalls);
+        this.wgData = config.wgData;
+        this.supportsWholeGenome = true;
+      //  this.header = config.wgData ? true : {} ;
 
     }
 
@@ -47,7 +50,9 @@ var igv = (function (igv) {
             if (self.header) {
                 fulfill(self.header);
             }
-
+            else if ('all' === (_.first(igv.browser.genomicStateList)).locusSearchString && this.wgData !== undefined) {
+              fulfill(self.header);
+            }
             else {
 
                 self.header = {};
@@ -102,6 +107,7 @@ var igv = (function (igv) {
 
         return new Promise(function (fulfill, reject) {
 
+              self.readHeader().then(fulfill).catch(reject);
             self.readHeader().then(function (header) {
 
                 getChrNameMap().then(function (chrNameMap) {
@@ -122,7 +128,8 @@ var igv = (function (igv) {
                         },
                         decode: function (json) {
                             var variants = [];
-
+                            console.log('json incoming !');
+                            console.log(json);
                             json.variants.forEach(function (json) {
                                 variants.push(igv.createGAVariant(json));
                             });
@@ -132,6 +139,7 @@ var igv = (function (igv) {
                     }).then(fulfill).catch(reject);
                 }).catch(reject);  // chr name map
             }).catch(reject);  // callsets
+
         });
 
 

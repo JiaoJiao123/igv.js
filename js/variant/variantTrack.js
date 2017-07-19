@@ -180,7 +180,10 @@ var igv = (function (igv) {
             px, px1, pw, py, h, style, i, variant, call, callSet, j, allRef, allVar, callSets,
             sampleHeight = this.displayMode === "EXPANDED" ? this.expandedCallHeight : this.squishedCallHeight,
             border = ("SQUISHED" === this.displayMode) ? 0 : 1;
-
+            console.log(bpPerPixel);
+            console.log(variant.start);
+            console.log(variant.end);
+            console.log(variant.height);
         this.variantBandHeight = 10 + this.nRows * (this.variantHeight + vGap);
 
         callSets = this.callSets;
@@ -293,7 +296,7 @@ var igv = (function (igv) {
             }
             return ;
         }
-*/
+
 
         if (featureList) {
             for (i = 0, len = featureList.length; i < len; i++) {
@@ -348,6 +351,7 @@ var igv = (function (igv) {
                 }
             }
         }
+        */
         else {
             console.log("No feature list");
         }
