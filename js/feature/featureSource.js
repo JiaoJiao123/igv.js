@@ -36,9 +36,9 @@ var igv = (function (igv) {
     igv.FeatureSource = function (config) {
 
         this.config = config || {};
-
+        this.type = config.type;
         this.sourceType = (config.sourceType === undefined ? "file" : config.sourceType);
-
+        //console.log(this.type);
         if (config.sourceType === "ga4gh") {
             this.reader = new igv.Ga4ghVariantReader(config);
         } else if (config.sourceType === "immvar") {
@@ -146,12 +146,11 @@ var igv = (function (igv) {
                 featureCache,
                 maxRows,
                 str;
-
+            console.log(self.type);
             genomicInterval = new igv.GenomicInterval(chr, bpStart, bpEnd);
             featureCache = self.featureCache;
             maxRows = self.config.maxRows || 500;
             str = chr.toLowerCase();
-
             if ("all" === str) {
                 if (self.reader.supportsWholeGenome) {
                     if (featureCache && featureCache.range === undefined) {
@@ -173,7 +172,46 @@ var igv = (function (igv) {
                             fulfill(getWGFeatures(self.featureCache.allFeatures()));
                         });
                     }
-                } else {
+
+                }
+              //   if (self.type === 'variant') {
+                  /* self.reader.readFeatures(chr, genomicInterval.start, genomicInterval.end).then(
+                       function (featureList) {
+                         console.log('featureList incoming!');
+                         console.log(featureList);
+                           if (featureList && typeof featureList.forEach === 'function') {  // Have result AND its an array type
+
+                               var isQueryable = self.reader.indexed || self.config.sourceType !== "file";
+
+                               if ("gtf" === self.config.format || "gff3" === self.config.format || "gff" === self.config.format) {
+                                   featureList = (new igv.GFFHelper(self.config.format)).combineFeatures(featureList);
+                               }
+
+                               self.featureCache = isQueryable ?
+                                   new igv.FeatureCache(featureList, genomicInterval) :
+                                   new igv.FeatureCache(featureList);   // Note - replacing previous cache with new one
+
+
+                               // Assign overlapping features to rows
+                               packFeatures(featureList, maxRows);
+
+                               // If track is marked "searchable"< cache features by name -- use this with caution, memory intensive
+                               if (self.config.searchable) {
+                                   addFeaturesToDB(featureList);
+                               }
+
+                               // Finally pass features for query interval to continuation
+                               fulfill(self.featureCache.queryFeatures(chr, bpStart, bpEnd));
+                           }
+                           else {
+                               fulfill(null);
+                           }
+
+                       }).catch(reject);
+                       */
+              //  }
+                  else
+                  {
                     fulfill(null);
                 }
             }
@@ -193,7 +231,8 @@ var igv = (function (igv) {
 
                 self.reader.readFeatures(chr, genomicInterval.start, genomicInterval.end).then(
                     function (featureList) {
-
+                      console.log('featureList incoming!');
+                      console.log(featureList);
                         if (featureList && typeof featureList.forEach === 'function') {  // Have result AND its an array type
 
                             var isQueryable = self.reader.indexed || self.config.sourceType !== "file";

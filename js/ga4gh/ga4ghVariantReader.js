@@ -35,8 +35,6 @@ var igv = (function (igv) {
         this.includeCalls = (config.includeCalls === undefined ? true : config.includeCalls);
         this.wgData = config.wgData;
         this.supportsWholeGenome = true;
-      //  this.header = config.wgData ? true : {} ;
-
     }
 
     // Simulate a VCF file header
@@ -50,16 +48,15 @@ var igv = (function (igv) {
             if (self.header) {
                 fulfill(self.header);
             }
-            else if ('all' === (_.first(igv.browser.genomicStateList)).locusSearchString && this.wgData !== undefined) {
-              fulfill(self.header);
-            }
+
             else {
 
                 self.header = {};
 
                 if (self.includeCalls === false) {
                     fulfill(self.header);
-                }
+               }
+
                 else {
 
                     var readURL = self.url + "/callsets/search";
@@ -94,6 +91,7 @@ var igv = (function (igv) {
                         fulfill(self.header);
                     }).catch(reject);
                 }
+
             }
 
         });
@@ -104,17 +102,19 @@ var igv = (function (igv) {
     igv.Ga4ghVariantReader.prototype.readFeatures = function (chr, bpStart, bpEnd) {
 
         var self = this;
-
+        console.log('chr,bpstart,bpend in Ga4ghVariantReader');
+        console.log(chr);
+        console.log(bpStart);
+        console.log(bpEnd);
         return new Promise(function (fulfill, reject) {
 
-              self.readHeader().then(fulfill).catch(reject);
             self.readHeader().then(function (header) {
 
                 getChrNameMap().then(function (chrNameMap) {
 
                     var queryChr = chrNameMap.hasOwnProperty(chr) ? chrNameMap[chr] : chr,
                         readURL = self.url + "/variants/search";
-
+ /*
                     igv.ga4ghSearch({
                         url: readURL,
                         fields: (self.includeCalls ? undefined : "nextPageToken,variants(id,variantSetId,names,referenceName,start,end,referenceBases,alternateBases,quality, filter, info)"),
@@ -128,18 +128,50 @@ var igv = (function (igv) {
                         },
                         decode: function (json) {
                             var variants = [];
-                            console.log('json incoming !');
-                            console.log(json);
+
                             json.variants.forEach(function (json) {
                                 variants.push(igv.createGAVariant(json));
                             });
 
                             return variants;
                         }
-                    }).then(fulfill).catch(reject);
-                }).catch(reject);  // chr name map
-            }).catch(reject);  // callsets
+                     }).then(fulfill).catch(reject);
 
+
+
+*/
+                var samplePromise = new Promise(function (fulfill, reject) {
+                     var results =[],
+                         tmp;
+                     //call of json left to do
+                     function decode (json) {
+                       var variants=[];
+                       json.forEach(function (json) {
+                           variants.push(igv.createGAVariant(json));
+                       })
+                     };
+
+                     if (this.wgData) {
+
+                         tmp = decode ? decode(this.wgData) : this.wgData;
+                         console.log('wgData Incoming!');
+                         console.log(this.wgData);
+                         if (tmp) {
+
+                             tmp.forEach(function (a) {
+                                 var keep = true;
+                                 if (keep) {
+                                     results.push(a);
+                                 }
+                             });
+                         }
+
+                       }
+                       fulfill(results);
+                     }).then(fulfill).catch(reject);
+
+                  }).catch(reject);  // chr name map
+        }).catch(reject);  // callsets
         });
 
 

@@ -31,7 +31,7 @@
 var igv = (function (igv) {
 
     var vGap = 2;
-    var DEFAULT_VISIBILITY_WINDOW = 1000000000000;
+    var DEFAULT_VISIBILITY_WINDOW = 1000000000000000000;
 
     igv.VariantTrack = function (config) {
 
@@ -54,7 +54,9 @@ var igv = (function (igv) {
         this.hetvarColor = config.hetvarColor || "rgb(34,12,253)";
 
         this.nRows = 1;  // Computed dynamically
-
+        if ('all' === (_.first(igv.browser.genomicStateList)).locusSearchString) {
+          this.drawWholeGenome();
+        }
     };
 
 
@@ -166,6 +168,13 @@ var igv = (function (igv) {
 
     };
 
+    igv.VariantTrack.prototype.drawWholeGenome = function () {
+      window.onload = function() {
+      var cnv = document.getElementById('variant');//.getElementsByTagName('canvas');
+      console.log(cnv);
+    }
+    };
+
     igv.VariantTrack.prototype.draw = function (options) {
 
         var myself = this,
@@ -180,10 +189,7 @@ var igv = (function (igv) {
             px, px1, pw, py, h, style, i, variant, call, callSet, j, allRef, allVar, callSets,
             sampleHeight = this.displayMode === "EXPANDED" ? this.expandedCallHeight : this.squishedCallHeight,
             border = ("SQUISHED" === this.displayMode) ? 0 : 1;
-            console.log(bpPerPixel);
-            console.log(variant.start);
-            console.log(variant.end);
-            console.log(variant.height);
+
         this.variantBandHeight = 10 + this.nRows * (this.variantHeight + vGap);
 
         callSets = this.callSets;
@@ -193,21 +199,120 @@ var igv = (function (igv) {
         if (callSets && callSets.length > 0 && "COLLAPSED" !== this.displayMode) {
             igv.graphics.strokeLine(ctx, 0, this.variantBandHeight, pixelWidth, this.variantBandHeight, {strokeStyle: 'rgb(224,224,224) '});
         }
-
+        console.log('Draw is invoked yay!');
 
         if (this.wgData) {
 
+          var input = (_.first(igv.browser.genomicStateList)).locusSearchString;
+
+          if (input === 'all') {
+
+            var chromosomeArray = [249250621,243199373,198022430,191154276,180915260,171115067,159138663,146364022,141213431,135534747,135006516,133851895,115169878,107349540,102531392,90354753,81195210,78077248,59128983,63025520,48129895,51304566,155270560,59373566],
+                totalBP = _.reduce(chromosomeArray, function(memo, num){ return memo + num; }, 0),
+                chrLen = chromosomeArray.length,
+                arrX = [0];
+                console.log('ctx is ');// + ctx);
+                console.log(ctx);
+                arrX.push(Math.floor(ctx.canvas.width/totalBP*chromosomeArray[0]));
+                for (var i=1; i<chrLen+1 ; i++) {
+                    arrX.push(Math.floor(ctx.canvas.width/totalBP*chromosomeArray[i]));
+                    arrX[i] = arrX[i-1] + arrX[i];
+                }
+
+            for (i = 0, len = this.wgData.length; i < len; i++) {
+              var variant = this.wgData[i];
+                //if (variant.end < bpStart) continue;
+              //  if (variant.start > bpEnd) break;
+                py = 20 ;//+ ("COLLAPSED" === this.displayMode ? 0 : variant.row * (this.variantHeight + vGap));
+                h = this.variantHeight;
+              var chr = variant.referenceName;
+              if (chr === 'X') {
+                chr = '23';
+              } else if ( chr === 'Y') {
+                chr = '24';
+              }
+
+            //  var px = Math.round(variant.start/chromosomeArray[chr-1]*arrX[chr-1]);
+              //var px1 = Math.round(variant.end/chromosomeArray[chr-1]*arrX[chr-1]);
+            //  var search = input.substring(0, input.indexOf(":")) || '';
+
+            //  if (search === '') {
+          //      search = input;
+          //    }
+          //     if (search === 'chr' + variant.referenceName || input === 'all') {
+                 //console.log('VIdhdkj;jdbjchgdjghzdnkmdx');
+              //   console.log(variant.start);
+                 //console.log(bpStart);
+                // console.log(bpPerPixel);
+                console.log('chr is ' + chr);
+                console.log('variant is ' + variant.start);
+                console.log('chromosomeArray with chr ' + chromosomeArray[chr-1]);
+                console.log('arrX is ' + arrX);
+                px = Math.round(variant.start/chromosomeArray[chr-1]*arrX[chr-1]);
+                px1 = Math.round(variant.start/chromosomeArray[chr-1]*arrX[chr-1]);
+                pw = Math.max(1, px1 - px);
+                if (pw < 3) {
+                    pw = 3;
+                    px -= 1;
+                } else if (pw > 5) {
+                    px += 1;
+                    pw -= 2;
+                }
+                console.log('PX is ' + px);
+                console.log('Px1 is ' + px1);
+
+                ctx.fillStyle = this.color;
+                ctx.fillRect(px, py, pw, h);
+             }
+
+                if (callSets && variant.calls && "COLLAPSED" !== this.displayMode) {
+                    h = callHeight;
+                    for (j = 0; j < callSets.length; j++) {
+                        callSet = callSets[j];
+                        call = variant.calls[callSet.id];
+                        if (call) {
+
+                            // Determine genotype
+                            allVar = allRef = true;  // until proven otherwise
+                            call.genotype.forEach(function (g) {
+                                if (g != 0) allRef = false;
+                                if (g == 0) allVar = false;
+                            });
+
+                            if (allRef) {
+                                ctx.fillStyle = this.homrefColor;
+                            } else if (allVar) {
+                                ctx.fillStyle = this.homvarColor;
+                            } else {
+                                ctx.fillStyle = this.hetvarColor;
+                            }
+
+                            py = this.variantBandHeight + vGap + (j + variant.row) * callHeight;
+                            ctx.fillRect(px, py, pw, h);
+                        }
+                    }
+                }
+            }
+           else {
           for (i = 0, len = this.wgData.length; i < len; i++) {
-              variant = this.wgData[i];
+            var variant = this.wgData[i];
               //if (variant.end < bpStart) continue;
             //  if (variant.start > bpEnd) break;
-          //  console.log(i);
-          //  console.log(variant);
-              py = 10 ;//+ ("COLLAPSED" === this.displayMode ? 0 : variant.row * (this.variantHeight + vGap));
+              py = 20 ;//+ ("COLLAPSED" === this.displayMode ? 0 : variant.row * (this.variantHeight + vGap));
               h = this.variantHeight;
 
-              px = Math.round((variant.start - bpStart) / bpPerPixel);
-              px1 = Math.round((variant.end - bpStart) / bpPerPixel);
+            var search = input.substring(0, input.indexOf(":")) || '';
+
+            if (search === '') {
+              search = input;
+            }
+             if (search === 'chr' + variant.referenceName || input === 'all') {
+               //console.log('VIdhdkj;jdbjchgdjghzdnkmdx');
+            //   console.log(variant.start);
+               //console.log(bpStart);
+              // console.log(bpPerPixel);
+              px = Math.floor((variant.start - bpStart) / bpPerPixel);
+              px1 = Math.floor((variant.end - bpStart) / bpPerPixel);
               pw = Math.max(1, px1 - px);
               if (pw < 3) {
                   pw = 3;
@@ -216,10 +321,10 @@ var igv = (function (igv) {
                   px += 1;
                   pw -= 2;
               }
-
+              console.log('Width is ' + pw);
               ctx.fillStyle = this.color;
               ctx.fillRect(px, py, pw, h);
-
+           }
 
               if (callSets && variant.calls && "COLLAPSED" !== this.displayMode) {
                   h = callHeight;
@@ -250,53 +355,9 @@ var igv = (function (igv) {
               }
           }
         }
-/*
-        if (this.displayWG) {
-            xScale = bpPerPixel;
-            for (i = 0, len = featureList.length; i < len; i++) {
-                sample = featureList[i].sample;
-                if (!this.samples.hasOwnProperty(sample)) {
-                    this.samples[sample] = myself.sampleCount;
-                    this.sampleNames.push(sample);
-                    this.sampleCount++;
-                }
-            }
-
-            checkForLog(featureList);
-
-            for (i = 0, len = featureList.length; i < len; i++) {
-
-                segment = featureList[i];
-
-                if (segment.end < bpStart) continue;
-                if (segment.start > bpEnd) break;
-                y = myself.samples[segment.sample] * sampleHeight + border;
-
-                value = segment.value;
-                if (!myself.isLog) {
-                    value = Math.log2(value / 2);
-                }
-
-                if (value < -0.1) {
-                    color = myself.negColorScale.getColor(value);
-                }
-                else if (value > 0.1) {
-                    color = myself.posColorScale.getColor(value);
-                }
-                else {
-                    color = "white";
-                }
-
-                px = Math.round((segment.start - bpStart) / xScale);
-                px1 = Math.round((segment.end - bpStart) / xScale);
-                pw = Math.max(1, px1 - px);
-
-                igv.graphics.fillRect(ctx, px, y, pw, sampleHeight - 2 * border, {fillStyle: color});
-
-            }
-            return ;
         }
 
+/*
 
         if (featureList) {
             for (i = 0, len = featureList.length; i < len; i++) {
@@ -351,10 +412,10 @@ var igv = (function (igv) {
                 }
             }
         }
-        */
-        else {
-            console.log("No feature list");
-        }
+  */
+      //  else {
+  //          console.log("No feature list");
+    //    }
 
     };
 

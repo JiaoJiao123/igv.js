@@ -71,10 +71,11 @@ var igv = (function (igv) {
         }
 
         // zoom in to see features
-        if (trackView.track.visibilityWindow !== undefined || !trackView.track.supportsWholeGenome) {
-            self.$zoomInNotice = createZoomInNotice();
-            $(this.contentDiv).append(self.$zoomInNotice);
-        }
+  //      if (trackView.track.visibilityWindow !== undefined || !trackView.track.supportsWholeGenome) {
+  //          self.$zoomInNotice = createZoomInNotice();
+  //          $(this.contentDiv).append(self.$zoomInNotice);
+  //          console.log('bhenchodddddddddddddddd');
+  //      }
 
         function createZoomInNotice () {
             var $container,
@@ -494,20 +495,20 @@ var igv = (function (igv) {
             return;
         }
 
-        if (this.$zoomInNotice && this.trackView.track.visibilityWindow !== undefined && this.trackView.track.visibilityWindow > 0) {
+    /*    if (this.$zoomInNotice && this.trackView.track.visibilityWindow !== undefined && this.trackView.track.visibilityWindow > 0) {
             if ((referenceFrame.bpPerPixel * this.$viewport.width() > this.trackView.track.visibilityWindow) ||
                 (referenceFrame.chrName === "all" && !this.trackView.track.supportsWholeGenome)) {
                 this.tile = null;
-                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+                //this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
                 self.stopSpinner();
-
+                console.log('bhenchod');
                 this.$zoomInNotice.show();
                 return;
             } else {
                 this.$zoomInNotice.hide();
             }
-        }
+        }   */
 
         chr = referenceFrame.chrName;
         refFrameStart = referenceFrame.start;
