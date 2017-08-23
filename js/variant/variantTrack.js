@@ -40,7 +40,7 @@ var igv = (function (igv) {
 
         igv.configTrack(this, config);
 
-        this.displayMode = config.displayMode || "EXPANDED";    // COLLAPSED | EXPANDED | SQUISHED
+        this.displayMode = config.displayMode || "COLLAPSED";    // COLLAPSED | EXPANDED | SQUISHED
         this.labelDisplayMode = config.labelDisplayMode;
         this.variantHeight = config.variantHeight || 10;
         this.squishedCallHeight = this.displayWG ? (config.squishedCallHeight || 2) : (config.squishedCallHeight || 1);    //Prefer user defined args until not specified. Use 2 for constructing Whole genome by default
@@ -52,11 +52,8 @@ var igv = (function (igv) {
         this.homrefColor = config.homrefColor || "rgb(200, 200, 200)"
         this.homvarColor = config.homvarColor || "rgb(17,248,254)";
         this.hetvarColor = config.hetvarColor || "rgb(34,12,253)";
-
         this.nRows = 1;  // Computed dynamically
-        if ('all' === (_.first(igv.browser.genomicStateList)).locusSearchString) {
-          this.drawWholeGenome();
-        }
+
     };
 
 
@@ -168,15 +165,8 @@ var igv = (function (igv) {
 
     };
 
-    igv.VariantTrack.prototype.drawWholeGenome = function () {
-      window.onload = function() {
-      var cnv = document.getElementById('variant');//.getElementsByTagName('canvas');
-      console.log(cnv);
-    }
-    };
 
     igv.VariantTrack.prototype.draw = function (options) {
-
         var myself = this,
             featureList = options.features,
             ctx = options.context,
@@ -199,57 +189,44 @@ var igv = (function (igv) {
         if (callSets && callSets.length > 0 && "COLLAPSED" !== this.displayMode) {
             igv.graphics.strokeLine(ctx, 0, this.variantBandHeight, pixelWidth, this.variantBandHeight, {strokeStyle: 'rgb(224,224,224) '});
         }
-        console.log('Draw is invoked yay!');
+
 
         if (this.wgData) {
 
           var input = (_.first(igv.browser.genomicStateList)).locusSearchString;
-
-          if (input === 'all') {
+          var modifiedSearchString = (igv.browser.genomicStateList[0].chromosome.name + ':' + igv.browser.genomicStateList[0].start + '-' + igv.browser.genomicStateList[0].end);
+          if (input === 'all')
+          {
+            modifiedSearchString = input;
+          }
+          if (modifiedSearchString === 'all') {
 
             var chromosomeArray = [249250621,243199373,198022430,191154276,180915260,171115067,159138663,146364022,141213431,135534747,135006516,133851895,115169878,107349540,102531392,90354753,81195210,78077248,59128983,63025520,48129895,51304566,155270560,59373566],
                 totalBP = _.reduce(chromosomeArray, function(memo, num){ return memo + num; }, 0),
                 chrLen = chromosomeArray.length,
                 arrX = [0];
-                console.log('ctx is ');// + ctx);
-                console.log(ctx);
-                arrX.push(Math.floor(ctx.canvas.width/totalBP*chromosomeArray[0]));
+                arrX.push(Math.floor(ctx.canvas.width/totalBP*chromosomeArray[0]/3));
                 for (var i=1; i<chrLen+1 ; i++) {
-                    arrX.push(Math.floor(ctx.canvas.width/totalBP*chromosomeArray[i]));
+                    arrX.push(Math.floor(ctx.canvas.width/totalBP*chromosomeArray[i]/3));
                     arrX[i] = arrX[i-1] + arrX[i];
                 }
+                arrX[i] = ctx.canvas.width;
 
             for (i = 0, len = this.wgData.length; i < len; i++) {
-              var variant = this.wgData[i];
-                //if (variant.end < bpStart) continue;
-              //  if (variant.start > bpEnd) break;
+            var variant = this.wgData[i];
                 py = 20 ;//+ ("COLLAPSED" === this.displayMode ? 0 : variant.row * (this.variantHeight + vGap));
                 h = this.variantHeight;
-              var chr = variant.referenceName;
+                var chr = variant.referenceName;
               if (chr === 'X') {
                 chr = '23';
               } else if ( chr === 'Y') {
                 chr = '24';
               }
 
-            //  var px = Math.round(variant.start/chromosomeArray[chr-1]*arrX[chr-1]);
-              //var px1 = Math.round(variant.end/chromosomeArray[chr-1]*arrX[chr-1]);
-            //  var search = input.substring(0, input.indexOf(":")) || '';
+              var addendum = (arrX[chr-1] == NaN ? 0 : arrX[chr-1]);
 
-            //  if (search === '') {
-          //      search = input;
-          //    }
-          //     if (search === 'chr' + variant.referenceName || input === 'all') {
-                 //console.log('VIdhdkj;jdbjchgdjghzdnkmdx');
-              //   console.log(variant.start);
-                 //console.log(bpStart);
-                // console.log(bpPerPixel);
-                console.log('chr is ' + chr);
-                console.log('variant is ' + variant.start);
-                console.log('chromosomeArray with chr ' + chromosomeArray[chr-1]);
-                console.log('arrX is ' + arrX);
-                px = Math.round(variant.start/chromosomeArray[chr-1]*arrX[chr-1]);
-                px1 = Math.round(variant.start/chromosomeArray[chr-1]*arrX[chr-1]);
+                px = (variant.start / chromosomeArray[chr-1] * (arrX[chr] - arrX[chr-1]) + addendum);
+                px1 = (variant.end / chromosomeArray[chr-1] * (arrX[chr] - arrX[chr-1]) + addendum);
                 pw = Math.max(1, px1 - px);
                 if (pw < 3) {
                     pw = 3;
@@ -258,59 +235,25 @@ var igv = (function (igv) {
                     px += 1;
                     pw -= 2;
                 }
-                console.log('PX is ' + px);
-                console.log('Px1 is ' + px1);
+
 
                 ctx.fillStyle = this.color;
                 ctx.fillRect(px, py, pw, h);
              }
 
-                if (callSets && variant.calls && "COLLAPSED" !== this.displayMode) {
-                    h = callHeight;
-                    for (j = 0; j < callSets.length; j++) {
-                        callSet = callSets[j];
-                        call = variant.calls[callSet.id];
-                        if (call) {
-
-                            // Determine genotype
-                            allVar = allRef = true;  // until proven otherwise
-                            call.genotype.forEach(function (g) {
-                                if (g != 0) allRef = false;
-                                if (g == 0) allVar = false;
-                            });
-
-                            if (allRef) {
-                                ctx.fillStyle = this.homrefColor;
-                            } else if (allVar) {
-                                ctx.fillStyle = this.homvarColor;
-                            } else {
-                                ctx.fillStyle = this.hetvarColor;
-                            }
-
-                            py = this.variantBandHeight + vGap + (j + variant.row) * callHeight;
-                            ctx.fillRect(px, py, pw, h);
-                        }
-                    }
-                }
             }
            else {
           for (i = 0, len = this.wgData.length; i < len; i++) {
             var variant = this.wgData[i];
-              //if (variant.end < bpStart) continue;
-            //  if (variant.start > bpEnd) break;
               py = 20 ;//+ ("COLLAPSED" === this.displayMode ? 0 : variant.row * (this.variantHeight + vGap));
               h = this.variantHeight;
 
-            var search = input.substring(0, input.indexOf(":")) || '';
+            var search = modifiedSearchString.substring(0, modifiedSearchString.indexOf(":")) || '';
 
             if (search === '') {
-              search = input;
+              search = modifiedSearchString;
             }
-             if (search === 'chr' + variant.referenceName || input === 'all') {
-               //console.log('VIdhdkj;jdbjchgdjghzdnkmdx');
-            //   console.log(variant.start);
-               //console.log(bpStart);
-              // console.log(bpPerPixel);
+             if (search === 'chr' + variant.referenceName || modifiedSearchString === 'all') {
               px = Math.floor((variant.start - bpStart) / bpPerPixel);
               px1 = Math.floor((variant.end - bpStart) / bpPerPixel);
               pw = Math.max(1, px1 - px);
@@ -321,7 +264,6 @@ var igv = (function (igv) {
                   px += 1;
                   pw -= 2;
               }
-              console.log('Width is ' + pw);
               ctx.fillStyle = this.color;
               ctx.fillRect(px, py, pw, h);
            }
@@ -357,103 +299,50 @@ var igv = (function (igv) {
         }
         }
 
-/*
-
-        if (featureList) {
-            for (i = 0, len = featureList.length; i < len; i++) {
-                variant = featureList[i];
-                if (variant.end < bpStart) continue;
-                if (variant.start > bpEnd) break;
-
-                py = 10 + ("COLLAPSED" === this.displayMode ? 0 : variant.row * (this.variantHeight + vGap));
-                h = this.variantHeight;
-
-                px = Math.round((variant.start - bpStart) / bpPerPixel);
-                px1 = Math.round((variant.end - bpStart) / bpPerPixel);
-                pw = Math.max(1, px1 - px);
-                if (pw < 3) {
-                    pw = 3;
-                    px -= 1;
-                } else if (pw > 5) {
-                    px += 1;
-                    pw -= 2;
-                }
-
-                ctx.fillStyle = this.color;
-                ctx.fillRect(px, py, pw, h);
-
-
-                if (callSets && variant.calls && "COLLAPSED" !== this.displayMode) {
-                    h = callHeight;
-                    for (j = 0; j < callSets.length; j++) {
-                        callSet = callSets[j];
-                        call = variant.calls[callSet.id];
-                        if (call) {
-
-                            // Determine genotype
-                            allVar = allRef = true;  // until proven otherwise
-                            call.genotype.forEach(function (g) {
-                                if (g != 0) allRef = false;
-                                if (g == 0) allVar = false;
-                            });
-
-                            if (allRef) {
-                                ctx.fillStyle = this.homrefColor;
-                            } else if (allVar) {
-                                ctx.fillStyle = this.homvarColor;
-                            } else {
-                                ctx.fillStyle = this.hetvarColor;
-                            }
-
-                            py = this.variantBandHeight + vGap + (j + variant.row) * callHeight;
-                            ctx.fillRect(px, py, pw, h);
-                        }
-                    }
-                }
-            }
-        }
-  */
-      //  else {
-  //          console.log("No feature list");
-    //    }
-
     };
 
     igv.VariantTrack.prototype.popupDataWithConfiguration = function (config) {
-        return this.popupData(config.genomicLocation, config.x, config.y, config.viewport.genomicState.referenceFrame)
+      console.log(config);
+        return this.popupData(config.genomicLocation, config.x, config.y, config.viewport.genomicState.referenceFrame, config.viewport.canvas)
     };
 
     /**
      * Return "popup data" for feature @ genomic location.  Data is an array of key-value pairs
      */
-    igv.VariantTrack.prototype.popupData = function (genomicLocation, xOffset, yOffset, referenceFrame) {
+    igv.VariantTrack.prototype.popupData = function (genomicLocation, xOffset, yOffset, referenceFrame, canvas) {
 
         // We use the featureCache property rather than method to avoid async load.  If the
         // feature is not already loaded this won't work,  but the user wouldn't be mousing over it either.
-        if (this.featureSource.featureCache) {
+        if (this.wgData) {
 
             var chr = referenceFrame.chrName,
                 tolerance = Math.floor(2 * referenceFrame.bpPerPixel),  // We need some tolerance around genomicLocation, start with +/- 2 pixels
                 featureList = this.featureSource.featureCache.queryFeatures(chr, genomicLocation - tolerance, genomicLocation + tolerance),
                 popupData = [],
+                validatedFeatures = [],
+                ctx = canvas,
                 self = this;
+                if (chr !== 'all')
+                for(i = 0; i < this.wgData.length; i++) {
+                    if ('chr' + this.wgData[i].referenceName === chr)
+                        validatedFeatures.push(this.wgData[i]);
+                }
 
+            if (validatedFeatures) {
 
-            if (featureList && featureList.length > 0) {
-
-                featureList.forEach(function (variant) {
+                validatedFeatures.forEach(function (variant) {
 
                     var row, callHeight, callSets, cs, call;
 
-                    if ((variant.start <= genomicLocation + tolerance) &&
-                        (variant.end > genomicLocation - tolerance)) {
+                    if ((variant.start <= genomicLocation + tolerance * 2) &&
+                        (variant.end > genomicLocation - tolerance * 2)) {
 
-                        if (popupData.length > 0) {
+                    //    if (popupData.length > 0) {
                             popupData.push('<HR>')
-                        }
+                      //  }
 
                         if ("COLLAPSED" == self.displayMode) {
-                            Array.prototype.push.apply(popupData, variant.popupData(genomicLocation));
+                            Array.prototype.push.apply(popupData, popupDataFunction(variant));
                         }
                         else {
                             if (yOffset <= self.variantBandHeight) {
@@ -476,10 +365,106 @@ var igv = (function (igv) {
                             }
                         }
                     }
-                });
+                    });
+                    if (chr === 'all') {
+                      var chromosomeArray = [249250621,243199373,198022430,191154276,180915260,171115067,159138663,146364022,141213431,135534747,135006516,133851895,115169878,107349540,102531392,90354753,81195210,78077248,59128983,63025520,48129895,51304566,155270560,59373566],
+                          totalBP = _.reduce(chromosomeArray, function(memo, num){ return memo + num; }, 0),
+                          chrLen = chromosomeArray.length,
+                          arrX = [0];
+                          //console.log('ctx is ');// + ctx);
+                          //console.log(ctx);
+                          arrX.push(Math.floor(ctx.width/totalBP*chromosomeArray[0]));
+                          for (var i=1; i<chrLen+1 ; i++) {
+                              arrX.push(Math.floor(ctx.width/totalBP*chromosomeArray[i]));
+                              arrX[i] = arrX[i-1] + arrX[i];
+                          }
+                          arrX[i] = ctx.width;
+                          console.log(arrX);
+                          for (j = 0; j < arrX.length; j++) {
+                            if (xOffset < arrX[j] ) {
+                              chr = j.toString();
+                              break;
+                            }
+                          }
+
+                          for(i = 0; i < this.wgData.length; i++) {
+                              if (this.wgData[i].referenceName === chr)
+                                  validatedFeatures.push(this.wgData[i]);
+                          }
+
+                          var addendum = (arrX[chr-1] === NaN ? 0 : arrX[chr-1]);
+                          var arrPx = [],
+                              arrPx1 = [];
+                          for(i = 0; i < validatedFeatures.length; i++) {
+                            variant = validatedFeatures[i];
+                            px = (variant.start / chromosomeArray[chr-1] * (arrX[chr] - arrX[chr-1]) + addendum);//* ctx.canvas.width / totalBP + addendum);
+                            px1 = (variant.end / chromosomeArray[chr-1] * (arrX[chr] - arrX[chr-1]) + addendum);//* ctx.canvas.width / totalBP + addendum);
+                            arrPx.push(px);
+                            arrPx1.push(px1);
+                            if ((px <= xOffset + 2) &&
+                                (px1 > xOffset - 2)) {
+
+                            //    if (popupData.length > 0) {
+                                    popupData.push('<HR>')
+                              //  }
+
+                                if ("COLLAPSED" == self.displayMode) {
+                                    Array.prototype.push.apply(popupData, popupDataFunction(variant));
+                                }
+                              }
+                      }
+
+
+                        }
+
+
             }
+
+
             return popupData;
         }
+
+        function arrayToCommaString(array) {
+            if (!array) return;
+            var str = '', i;
+            if (array.length > 0)
+                str = array[0];
+            for (i = 1; i < array.length; i++) {
+                str += ", " + array[1];
+            }
+            return str;
+
+        }
+
+        function popupDataFunction(variant) {
+
+            var fields, gt,
+                self = this;
+
+            fields = [
+                {name: "Chr", value: variant.referenceName},
+                {name: "Pos", value: (variant.start)},
+                {name: "Ref", value: variant.referenceBases},
+                {name: "Alt", value: variant.alternateBases},
+                {name: "Hugo Gene Symbol", value: variant.hugoGeneSymbol},
+             ];
+
+            if(this.calls && this.calls.length === 1) {
+                gt = this.alleles[this.calls[0].genotype[0]] + this.alleles[this.calls[0].genotype[1]];
+                fields.push({name: "Genotype", value: gt});
+            }
+
+            if(this.info) {
+                fields.push('<HR>');
+                Object.keys(this.info).forEach(function (key) {
+                    fields.push({name: key, value: arrayToCommaString(self.info[key])});
+                });
+            }
+
+            return fields;
+
+        }
+
     }
 
     /**
@@ -566,42 +551,42 @@ var igv = (function (igv) {
         return menuItems;
 
     };
+/*
+          igv.VariantTrack.prototype.menuItemList = function (popover) {
 
-    //      igv.VariantTrack.prototype.menuItemList = function (popover) {
-    //
-    //     var myself = this,
-    //         menuItems = [],
-    //         lut = {"COLLAPSED": "Collapse", "SQUISHED": "Squish", "EXPANDED": "Expand"},
-    //         checkMark = '<i class="fa fa-check fa-check-shim"></i>',
-    //         checkMarkNone = '<i class="fa fa-check fa-check-shim fa-check-hidden"></i>',
-    //         trackMenuItem = '<div class=\"igv-track-menu-item\">',
-    //         trackMenuItemFirst = '<div class=\"igv-track-menu-item igv-track-menu-border-top\">';
-    //
-    //     menuItems.push(igv.colorPickerMenuItem(popover, this.trackView));
-    //
-    //     ["COLLAPSED", "SQUISHED", "EXPANDED"].forEach(function (displayMode, index) {
-    //
-    //         var chosen,
-    //             str;
-    //
-    //         chosen = (0 === index) ? trackMenuItemFirst : trackMenuItem;
-    //         str = (displayMode === myself.displayMode) ? chosen + checkMark + lut[displayMode] + '</div>' : chosen + checkMarkNone + lut[displayMode] + '</div>';
-    //
-    //         menuItems.push({
-    //             object: $(str),
-    //             click: function () {
-    //                 popover.hide();
-    //                 myself.displayMode = displayMode;
-    //                 myself.trackView.update();
-    //             }
-    //         });
-    //
-    //     });
-    //
-    //     return menuItems;
-    //
-    // };
+         var myself = this,
+             menuItems = [],
+             lut = {"COLLAPSED": "Collapse", "SQUISHED": "Squish", "EXPANDED": "Expand"},
+             checkMark = '<i class="fa fa-check fa-check-shim"></i>',
+             checkMarkNone = '<i class="fa fa-check fa-check-shim fa-check-hidden"></i>',
+             trackMenuItem = '<div class=\"igv-track-menu-item\">',
+             trackMenuItemFirst = '<div class=\"igv-track-menu-item igv-track-menu-border-top\">';
 
+         menuItems.push(igv.colorPickerMenuItem(popover, this.trackView));
+
+         ["COLLAPSED", "SQUISHED", "EXPANDED"].forEach(function (displayMode, index) {
+
+             var chosen,
+                 str;
+
+             chosen = (0 === index) ? trackMenuItemFirst : trackMenuItem;
+             str = (displayMode === myself.displayMode) ? chosen + checkMark + lut[displayMode] + '</div>' : chosen + checkMarkNone + lut[displayMode] + '</div>';
+
+             menuItems.push({
+                 object: $(str),
+                 click: function () {
+                     popover.hide();
+                     myself.displayMode = displayMode;
+                     myself.trackView.update();
+                 }
+             });
+
+         });
+
+        return menuItems;
+
+     };
+*/
 
     return igv;
 
