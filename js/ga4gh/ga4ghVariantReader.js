@@ -102,10 +102,6 @@ var igv = (function (igv) {
     igv.Ga4ghVariantReader.prototype.readFeatures = function (chr, bpStart, bpEnd) {
 
         var self = this;
-        console.log('chr,bpstart,bpend in Ga4ghVariantReader');
-        console.log(chr);
-        console.log(bpStart);
-        console.log(bpEnd);
         return new Promise(function (fulfill, reject) {
 
             self.readHeader().then(function (header) {
@@ -140,38 +136,34 @@ var igv = (function (igv) {
 
 
 */
-                var samplePromise = new Promise(function (fulfill, reject) {
-                     var results =[],
-                         tmp;
+                    var wholeGenomePromise = new Promise(function (fulfill, reject) {
+                        var results =[],
+                            tmp;
                      //call of json left to do
-                     function decode (json) {
-                       var variants=[];
-                       json.forEach(function (json) {
-                           variants.push(igv.createGAVariant(json));
-                       })
-                     };
+                        function decode (json) {
+                            var variants=[];
+                            json.forEach(function (json) {
+                                variants.push(igv.createGAVariant(json));
+                            })
+                        };
 
-                     if (this.wgData) {
+                        if (this.wgData) {
 
-                         tmp = decode ? decode(this.wgData) : this.wgData;
-                         console.log('wgData Incoming!');
-                         console.log(this.wgData);
-                         if (tmp) {
+                            tmp = decode ? decode(this.wgData) : this.wgData;
+                            if (tmp) {
+                                tmp.forEach(function (a) {
+                                    var keep = true;
+                                    if (keep) {
+                                        results.push(a);
+                                    }
+                                });
+                            }
+                        }
+                        fulfill(results);
+                    }).then(fulfill).catch(reject);
 
-                             tmp.forEach(function (a) {
-                                 var keep = true;
-                                 if (keep) {
-                                     results.push(a);
-                                 }
-                             });
-                         }
-
-                       }
-                       fulfill(results);
-                     }).then(fulfill).catch(reject);
-
-                  }).catch(reject);  // chr name map
-        }).catch(reject);  // callsets
+                }).catch(reject);  // chr name map
+            }).catch(reject);  // callsets
         });
 
 

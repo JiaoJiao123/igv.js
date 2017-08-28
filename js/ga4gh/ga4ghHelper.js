@@ -37,8 +37,6 @@ var igv = (function (igv) {
     }
 
     igv.ga4ghSearch = function (options) {
-        //console.log('options Incoming!');
-        //console.log(options);
         return new Promise(function (fulfill, reject) {
             var results = options.results ? options.results : [],
                 url = options.url,
@@ -79,8 +77,6 @@ var igv = (function (igv) {
                         headers: ga4ghHeaders()
                     }).then(function (json) {
                     var nextPageToken, tmp;
-                    //console.log('json incoming!');
-                    //console.log(json);
                     if (json) {
 
                         tmp = decode ? decode(json) : json;

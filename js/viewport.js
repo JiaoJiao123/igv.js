@@ -74,7 +74,6 @@ var igv = (function (igv) {
   //      if (trackView.track.visibilityWindow !== undefined || !trackView.track.supportsWholeGenome) {
   //          self.$zoomInNotice = createZoomInNotice();
   //          $(this.contentDiv).append(self.$zoomInNotice);
-  //          console.log('bhenchodddddddddddddddd');
   //      }
 
         function createZoomInNotice () {
@@ -500,7 +499,6 @@ var igv = (function (igv) {
                 (referenceFrame.chrName === "all" && !this.trackView.track.supportsWholeGenome)) {
                 this.tile = null;
                 //this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
                 self.stopSpinner();
                 console.log('bhenchod');
                 this.$zoomInNotice.show();

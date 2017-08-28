@@ -192,42 +192,45 @@ var igv = (function (igv) {
 
 
         if (this.wgData) {
+            var input = (_.first(igv.browser.genomicStateList)).locusSearchString,
+                modifiedSearchString = (igv.browser.genomicStateList[0].chromosome.name + ':' + igv.browser.genomicStateList[0].start + '-' + igv.browser.genomicStateList[0].end);  //To enable search by gene name
 
-          var input = (_.first(igv.browser.genomicStateList)).locusSearchString;
-          var modifiedSearchString = (igv.browser.genomicStateList[0].chromosome.name + ':' + igv.browser.genomicStateList[0].start + '-' + igv.browser.genomicStateList[0].end);
-          if (input === 'all')
-          {
-            modifiedSearchString = input;
-          }
-          if (modifiedSearchString === 'all') {
+            if (input === 'all') {
+                modifiedSearchString = input;  //Otherwise search string will be in the form of 'all:start-end'
+            }
 
-            var chromosomeArray = [249250621,243199373,198022430,191154276,180915260,171115067,159138663,146364022,141213431,135534747,135006516,133851895,115169878,107349540,102531392,90354753,81195210,78077248,59128983,63025520,48129895,51304566,155270560,59373566],
-                totalBP = _.reduce(chromosomeArray, function(memo, num){ return memo + num; }, 0),
-                chrLen = chromosomeArray.length,
-                arrX = [0];
+            if (modifiedSearchString === 'all') {
+                var chromosomeArray = [249250621,243199373,198022430,191154276,180915260,171115067,159138663,146364022,141213431,135534747,135006516,133851895,115169878,107349540,102531392,90354753,81195210,78077248,59128983,63025520,48129895,51304566,155270560,59373566],
+                    totalBP = _.reduce(chromosomeArray, function(memo, num){ return memo + num; }, 0),
+                    chrLen = chromosomeArray.length,
+                    arrX = [0];
+
                 arrX.push(Math.floor(ctx.canvas.width/totalBP*chromosomeArray[0]/3));
+
                 for (var i=1; i<chrLen+1 ; i++) {
                     arrX.push(Math.floor(ctx.canvas.width/totalBP*chromosomeArray[i]/3));
                     arrX[i] = arrX[i-1] + arrX[i];
                 }
+
                 arrX[i] = ctx.canvas.width;
 
-            for (i = 0, len = this.wgData.length; i < len; i++) {
-            var variant = this.wgData[i];
-                py = 20 ;//+ ("COLLAPSED" === this.displayMode ? 0 : variant.row * (this.variantHeight + vGap));
-                h = this.variantHeight;
+                for (i = 0, len = this.wgData.length; i < len; i++) {
+                var variant = this.wgData[i];
+                    py = 20 ;//+ ("COLLAPSED" === this.displayMode ? 0 : variant.row * (this.variantHeight + vGap));
+                    h = this.variantHeight;
                 var chr = variant.referenceName;
-              if (chr === 'X') {
-                chr = '23';
-              } else if ( chr === 'Y') {
-                chr = '24';
-              }
 
-              var addendum = (arrX[chr-1] == NaN ? 0 : arrX[chr-1]);
+                if (chr === 'X') {
+                  chr = '23';
+                }  else if ( chr === 'Y') {
+                  chr = '24';
+                }
 
-                px = (variant.start / chromosomeArray[chr-1] * (arrX[chr] - arrX[chr-1]) + addendum);
-                px1 = (variant.end / chromosomeArray[chr-1] * (arrX[chr] - arrX[chr-1]) + addendum);
-                pw = Math.max(1, px1 - px);
+                var addendum = (arrX[chr-1] == NaN ? 0 : arrX[chr-1]);
+                    px = (variant.start / chromosomeArray[chr-1] * (arrX[chr] - arrX[chr-1]) + addendum);
+                    px1 = (variant.end / chromosomeArray[chr-1] * (arrX[chr] - arrX[chr-1]) + addendum);
+                    pw = Math.max(1, px1 - px);
+
                 if (pw < 3) {
                     pw = 3;
                     px -= 1;
@@ -236,73 +239,72 @@ var igv = (function (igv) {
                     pw -= 2;
                 }
 
-
                 ctx.fillStyle = this.color;
                 ctx.fillRect(px, py, pw, h);
-             }
+                }
 
             }
-           else {
-          for (i = 0, len = this.wgData.length; i < len; i++) {
-            var variant = this.wgData[i];
-              py = 20 ;//+ ("COLLAPSED" === this.displayMode ? 0 : variant.row * (this.variantHeight + vGap));
-              h = this.variantHeight;
+            else {
+                for (i = 0, len = this.wgData.length; i < len; i++) {
+                    var variant = this.wgData[i];
+                    py = 20 ;//+ ("COLLAPSED" === this.displayMode ? 0 : variant.row * (this.variantHeight + vGap));
+                    h = this.variantHeight;
 
-            var search = modifiedSearchString.substring(0, modifiedSearchString.indexOf(":")) || '';
+                    var search = modifiedSearchString.substring(0, modifiedSearchString.indexOf(":")) || '';
 
-            if (search === '') {
-              search = modifiedSearchString;
-            }
-             if (search === 'chr' + variant.referenceName || modifiedSearchString === 'all') {
-              px = Math.floor((variant.start - bpStart) / bpPerPixel);
-              px1 = Math.floor((variant.end - bpStart) / bpPerPixel);
-              pw = Math.max(1, px1 - px);
-              if (pw < 3) {
-                  pw = 3;
-                  px -= 1;
-              } else if (pw > 5) {
-                  px += 1;
-                  pw -= 2;
-              }
-              ctx.fillStyle = this.color;
-              ctx.fillRect(px, py, pw, h);
-           }
+                    if (search === '') {
+                        search = modifiedSearchString;
+                    }
 
-              if (callSets && variant.calls && "COLLAPSED" !== this.displayMode) {
-                  h = callHeight;
-                  for (j = 0; j < callSets.length; j++) {
-                      callSet = callSets[j];
-                      call = variant.calls[callSet.id];
-                      if (call) {
+                    if (search === 'chr' + variant.referenceName || modifiedSearchString === 'all') {
+                        px = Math.floor((variant.start - bpStart) / bpPerPixel);
+                        px1 = Math.floor((variant.end - bpStart) / bpPerPixel);
+                        pw = Math.max(1, px1 - px);
+                        if (pw < 3) {
+                            pw = 3;
+                            px -= 1;
+                        } else if (pw > 5) {
+                            px += 1;
+                            pw -= 2;
+                        }
+                        ctx.fillStyle = this.color;
+                        ctx.fillRect(px, py, pw, h);
+                    }
+
+                    if (callSets && variant.calls && "COLLAPSED" !== this.displayMode) {
+                        h = callHeight;
+                        for (j = 0; j < callSets.length; j++) {
+                            callSet = callSets[j];
+                            call = variant.calls[callSet.id];
+                            if (call) {
 
                           // Determine genotype
-                          allVar = allRef = true;  // until proven otherwise
-                          call.genotype.forEach(function (g) {
-                              if (g != 0) allRef = false;
-                              if (g == 0) allVar = false;
-                          });
+                                allVar = allRef = true;  // until proven otherwise
+                                call.genotype.forEach(function (g) {
+                                    if (g != 0) allRef = false;
+                                    if (g == 0) allVar = false;
+                                });
 
-                          if (allRef) {
-                              ctx.fillStyle = this.homrefColor;
-                          } else if (allVar) {
-                              ctx.fillStyle = this.homvarColor;
-                          } else {
-                              ctx.fillStyle = this.hetvarColor;
-                          }
+                            if (allRef) {
+                                ctx.fillStyle = this.homrefColor;
+                            } else if (allVar) {
+                                ctx.fillStyle = this.homvarColor;
+                            } else {
+                                ctx.fillStyle = this.hetvarColor;
+                            }
 
-                          py = this.variantBandHeight + vGap + (j + variant.row) * callHeight;
-                          ctx.fillRect(px, py, pw, h);
-                      }
-                  }
-              }
-          }
-        }
+                            py = this.variantBandHeight + vGap + (j + variant.row) * callHeight;
+                            ctx.fillRect(px, py, pw, h);
+                            }
+                        }
+                    }
+                }
+            }
         }
 
     };
 
     igv.VariantTrack.prototype.popupDataWithConfiguration = function (config) {
-      console.log(config);
         return this.popupData(config.genomicLocation, config.x, config.y, config.viewport.genomicState.referenceFrame, config.viewport.canvas)
     };
 
@@ -365,43 +367,42 @@ var igv = (function (igv) {
                             }
                         }
                     }
-                    });
-                    if (chr === 'all') {
-                      var chromosomeArray = [249250621,243199373,198022430,191154276,180915260,171115067,159138663,146364022,141213431,135534747,135006516,133851895,115169878,107349540,102531392,90354753,81195210,78077248,59128983,63025520,48129895,51304566,155270560,59373566],
-                          totalBP = _.reduce(chromosomeArray, function(memo, num){ return memo + num; }, 0),
-                          chrLen = chromosomeArray.length,
-                          arrX = [0];
-                          //console.log('ctx is ');// + ctx);
-                          //console.log(ctx);
-                          arrX.push(Math.floor(ctx.width/totalBP*chromosomeArray[0]));
-                          for (var i=1; i<chrLen+1 ; i++) {
-                              arrX.push(Math.floor(ctx.width/totalBP*chromosomeArray[i]));
-                              arrX[i] = arrX[i-1] + arrX[i];
-                          }
-                          arrX[i] = ctx.width;
-                          console.log(arrX);
-                          for (j = 0; j < arrX.length; j++) {
+                });
+                if (chr === 'all') {
+                    var chromosomeArray = [249250621,243199373,198022430,191154276,180915260,171115067,159138663,146364022,141213431,135534747,135006516,133851895,115169878,107349540,102531392,90354753,81195210,78077248,59128983,63025520,48129895,51304566,155270560,59373566],
+                        totalBP = _.reduce(chromosomeArray, function(memo, num){ return memo + num; }, 0),
+                        chrLen = chromosomeArray.length,
+                        arrX = [0];
+                        arrX.push(Math.floor(ctx.width/totalBP*chromosomeArray[0]));
+                        for (var i=1; i<chrLen+1 ; i++) {
+                            arrX.push(Math.floor(ctx.width/totalBP*chromosomeArray[i]));
+                            arrX[i] = arrX[i-1] + arrX[i];
+                        }
+                        arrX[i] = ctx.width;
+
+                        for (j = 0; j < arrX.length; j++) {
                             if (xOffset < arrX[j] ) {
-                              chr = j.toString();
-                              break;
+                                chr = j.toString();
+                                break;
                             }
-                          }
+                        }
 
-                          for(i = 0; i < this.wgData.length; i++) {
-                              if (this.wgData[i].referenceName === chr)
-                                  validatedFeatures.push(this.wgData[i]);
-                          }
+                        for(i = 0; i < this.wgData.length; i++) {
+                            if (this.wgData[i].referenceName === chr)
+                                validatedFeatures.push(this.wgData[i]);
+                        }
 
-                          var addendum = (arrX[chr-1] === NaN ? 0 : arrX[chr-1]);
-                          var arrPx = [],
-                              arrPx1 = [];
-                          for(i = 0; i < validatedFeatures.length; i++) {
+                        var addendum = (arrX[chr-1] === NaN ? 0 : arrX[chr-1]),
+                            arrPx = [],
+                            arrPx1 = [];
+
+                        for(i = 0; i < validatedFeatures.length; i++) {
                             variant = validatedFeatures[i];
                             px = (variant.start / chromosomeArray[chr-1] * (arrX[chr] - arrX[chr-1]) + addendum);//* ctx.canvas.width / totalBP + addendum);
                             px1 = (variant.end / chromosomeArray[chr-1] * (arrX[chr] - arrX[chr-1]) + addendum);//* ctx.canvas.width / totalBP + addendum);
                             arrPx.push(px);
                             arrPx1.push(px1);
-                            if ((px <= xOffset + 2) &&
+                            if ((px <= xOffset + 2) &&  //Tolerance or Sensitivity used. In the worse case, all variant belonging to a particualr chromosome will be shown when clicked.
                                 (px1 > xOffset - 2)) {
 
                             //    if (popupData.length > 0) {
@@ -411,16 +412,10 @@ var igv = (function (igv) {
                                 if ("COLLAPSED" == self.displayMode) {
                                     Array.prototype.push.apply(popupData, popupDataFunction(variant));
                                 }
-                              }
-                      }
-
-
+                            }
                         }
-
-
+                }
             }
-
-
             return popupData;
         }
 
@@ -443,11 +438,12 @@ var igv = (function (igv) {
 
             fields = [
                 {name: "Chr", value: variant.referenceName},
-                {name: "Pos", value: (variant.start)},
+                {name: "Pos", value: variant.start},
                 {name: "Ref", value: variant.referenceBases},
                 {name: "Alt", value: variant.alternateBases},
-                {name: "Hugo Gene Symbol", value: variant.hugoGeneSymbol},
-             ];
+                {name: "Mutation", value: variant.proteinChange},
+                {name: "Gene", value: variant.hugoGeneSymbol},
+            ];
 
             if(this.calls && this.calls.length === 1) {
                 gt = this.alleles[this.calls[0].genotype[0]] + this.alleles[this.calls[0].genotype[1]];
@@ -455,16 +451,13 @@ var igv = (function (igv) {
             }
 
             if(this.info) {
-                fields.push('<HR>');
+                //fields.push('<HR>');
                 Object.keys(this.info).forEach(function (key) {
                     fields.push({name: key, value: arrayToCommaString(self.info[key])});
                 });
             }
-
             return fields;
-
         }
-
     }
 
     /**

@@ -3122,14 +3122,6 @@
                           indexed: false,
                           name: 'Segmented CN'
                       },
-                      /*  {
-                            url: 'https://data.broadinstitute.org/igvdata/test/igv-web/segmented_data_080520.seg.gz',
-                            indexed: false,
-                            name: 'Sample Track',
-                            type: 'variant',
-                            displayMode: "SQUISHED",   //Overriding default EXPANDED property of variant
-                            displayWG: true,    // Property given to make it construct whole genome. Default value is false
-                        }, */
                         {
                             sourceType: 'ga4gh',
                             type: 'variant',
@@ -3153,6 +3145,8 @@
                 };
 
         igv.createBrowser(div, options);
+
+
 
     });
 

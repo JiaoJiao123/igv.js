@@ -38,7 +38,6 @@ var igv = (function (igv) {
         this.config = config || {};
         this.type = config.type;
         this.sourceType = (config.sourceType === undefined ? "file" : config.sourceType);
-        //console.log(this.type);
         if (config.sourceType === "ga4gh") {
             this.reader = new igv.Ga4ghVariantReader(config);
         } else if (config.sourceType === "immvar") {
@@ -146,7 +145,6 @@ var igv = (function (igv) {
                 featureCache,
                 maxRows,
                 str;
-            console.log(self.type);
             genomicInterval = new igv.GenomicInterval(chr, bpStart, bpEnd);
             featureCache = self.featureCache;
             maxRows = self.config.maxRows || 500;
@@ -231,8 +229,7 @@ var igv = (function (igv) {
 
                 self.reader.readFeatures(chr, genomicInterval.start, genomicInterval.end).then(
                     function (featureList) {
-                      console.log('featureList incoming!');
-                      console.log(featureList);
+                      
                         if (featureList && typeof featureList.forEach === 'function') {  // Have result AND its an array type
 
                             var isQueryable = self.reader.indexed || self.config.sourceType !== "file";
